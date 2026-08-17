@@ -1,0 +1,20 @@
+.room {
+  min-height: 100svh;
+  padding: 28px 16px 48px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background:
+    radial-gradient(1200px 500px at 50% -10%, rgba(255, 255, 255, 0.28), transparent 55%),
+    linear-gradient(180deg, var(--room) 0%, var(--room-deep) 100%);
+}
+
+.room__inner {
+  width: min(1080px, 100%);
+}
+
+@media (max-width: 839px) {
+  .room {
+    padding: 12px 10px 32px;
+  }
+}
