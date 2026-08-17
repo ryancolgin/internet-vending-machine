@@ -10,7 +10,6 @@ export function HaulDrawer() {
     haul,
     setHaulOpen,
     setShareOpen,
-    shareHaul,
     removeFromHaul,
     keepStocked,
     alreadyOwn,
@@ -51,6 +50,7 @@ export function HaulDrawer() {
                       <button
                         type="button"
                         className={`ghost${notedKeep ? " ghost--on" : ""}`}
+                        aria-pressed={notedKeep}
                         onClick={() => keepStocked(product.id)}
                       >
                         KEEP STOCKED
@@ -58,6 +58,7 @@ export function HaulDrawer() {
                       <button
                         type="button"
                         className={`ghost${notedOwn ? " ghost--on" : ""}`}
+                        aria-pressed={notedOwn}
                         onClick={() => alreadyOwn(product.id)}
                       >
                         ALREADY OWN
@@ -77,11 +78,8 @@ export function HaulDrawer() {
           </ul>
         )}
         <div className="panel__actions">
-          <button type="button" className="vend" onClick={() => void shareHaul()}>
-            SHARE YOUR HAUL
-          </button>
-          <button type="button" className="ghost" onClick={() => setShareOpen(true)}>
-            HAUL CARD
+          <button type="button" className="vend" onClick={() => setShareOpen(true)}>
+            VIEW HAUL CARD
           </button>
           <button type="button" className="ghost" onClick={() => setHaulOpen(false)}>
             BACK TO MACHINE

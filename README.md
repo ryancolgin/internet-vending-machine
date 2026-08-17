@@ -39,7 +39,7 @@ Public client values only. Never put the Supabase service role key in this app.
 
 Copy `.env.example` to `.env` locally. On Vercel, set the same names in Project Settings → Environment Variables.
 
-The machine still works if these are missing. Events stay in `localStorage` only.
+The machine still works if these are missing. Events stay in `localStorage` only. Product suggestions also require the same Supabase project; run the full [`supabase/schema.sql`](supabase/schema.sql) so `product_suggestions` exists. Anonymous testers can insert suggestions only.
 
 ## Deploying to Vercel
 
@@ -72,4 +72,4 @@ Inventory stays in [`src/data/products.ts`](src/data/products.ts). Do not move i
 - Local: session id, haul, restock history, intro dismissal, metrics, and a backup event log (`ivm.v0.*`)
 - Remote (if configured): anonymous rows in `analytics_events`
 
-Nothing is purchased. Suggest / stock / follow are informational placeholders.
+Nothing is purchased. STOCK YOUR PRODUCT and FOLLOW RESTOCKS remain informational placeholders. SUGGEST SOMETHING writes to `product_suggestions` when Supabase is configured.

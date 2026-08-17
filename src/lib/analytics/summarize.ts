@@ -84,8 +84,27 @@ export function summarizeEvents(events: AnalyticsEvent[]): {
       case "keep_stocked":
         if (event.productId) row(event.productId).keepVotes += 1
         break
+      case "keep_stocked_removed":
+        if (event.productId) {
+          const stats = row(event.productId)
+          stats.keepVotes = Math.max(0, stats.keepVotes - 1)
+        }
+        break
       case "already_own":
         if (event.productId) row(event.productId).alreadyOwn += 1
+        break
+      case "already_own_removed":
+        if (event.productId) {
+          const stats = row(event.productId)
+          stats.alreadyOwn = Math.max(0, stats.alreadyOwn - 1)
+        }
+        break
+      case "help_opened":
+      case "suggest_opened":
+      case "stock_product_opened":
+      case "follow_restocks_opened":
+      case "haul_opened":
+      case "haul_card_viewed":
         break
     }
   }

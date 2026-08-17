@@ -18,7 +18,8 @@ import {
   productShareUrl,
   sharePayload,
 } from "../lib/share"
-import { assignToSlots, slotProductIds } from "../lib/slots"
+import { assignToSlots, slotForProduct, slotProductIds } from "../lib/slots"
+import { recordHaulShareSnapshot } from "../lib/haulHistory"
 import { readJson, writeJson } from "../lib/storage"
 import type { HaulItem, ModalId, Notice, RestockLogEntry } from "../types/machine"
 import type { ProductMetrics, SlotCode } from "../types/product"
@@ -32,10 +33,12 @@ export type MachineState = {
   restockLog: RestockLogEntry[]
   slots: Record<SlotCode, string>
   selectedSlot: SlotCode | null
+  inspectProductId: string | null
   inspectorOpen: boolean
   haul: HaulItem[]
   seenIds: string[]
   introDismissed: boolean
+  introOpen: boolean
   haulOpen: boolean
   shareOpen: boolean
   modal: ModalId | null
@@ -48,12 +51,14 @@ export type MachineState = {
 type Action =
   | { type: "HYDRATE"; state: MachineState }
   | { type: "SELECT_SLOT"; slot: SlotCode }
+  | { type: "INSPECT_PRODUCT"; productId: string }
   | { type: "VEND" }
   | { type: "KEEP"; productId?: string }
   | { type: "OWN"; productId?: string }
   | { type: "REMOVE_HAUL"; productId: string }
   | { type: "APPLY_RESTOCK"; slots: Record<SlotCode, string>; log: RestockLogEntry }
   | { type: "DISMISS_INTRO" }
+  | { type: "OPEN_INTRO" }
   | { type: "SET_HAUL_OPEN"; open: boolean }
   | { type: "SET_SHARE_OPEN"; open: boolean }
   | { type: "SET_MODAL"; modal: ModalId | null }
@@ -75,11 +80,12 @@ function bump(
   metrics: Record<string, ProductMetrics>,
   productId: string,
   key: keyof ProductMetrics,
+  delta = 1,
 ): Record<string, ProductMetrics> {
   const current = metrics[productId] ?? emptyMetrics()
   return {
     ...metrics,
-    [productId]: { ...current, [key]: current[key] + 1 },
+    [productId]: { ...current, [key]: Math.max(0, current[key] + delta) },
   }
 }
 
@@ -100,10 +106,12 @@ function createInitialState(): MachineState {
     restockLog: [],
     slots,
     selectedSlot: "B3",
+    inspectProductId: slots.B3,
     inspectorOpen: false,
     haul: [],
     seenIds: shown,
     introDismissed: false,
+    introOpen: false,
     haulOpen: false,
     shareOpen: false,
     modal: null,
@@ -138,11 +146,23 @@ function reducer(state: MachineState, action: Action): MachineState {
       return {
         ...state,
         selectedSlot: action.slot,
+        inspectProductId: productId || null,
         inspectorOpen: true,
         notice: null,
         metrics: productId
           ? bump(state.metrics, productId, "timesSelected")
           : state.metrics,
+      }
+    }
+    case "INSPECT_PRODUCT": {
+      if (!getProduct(action.productId)) return state
+      const slot = slotForProduct(state.slots, action.productId)
+      return {
+        ...state,
+        inspectProductId: action.productId,
+        selectedSlot: slot ?? null,
+        inspectorOpen: true,
+        notice: null,
       }
     }
     case "VEND": {
@@ -174,30 +194,42 @@ function reducer(state: MachineState, action: Action): MachineState {
     }
     case "KEEP": {
       const productId =
-        action.productId ?? (state.selectedSlot ? state.slots[state.selectedSlot] : undefined)
-      if (!productId || state.reactions[productId]?.keep) return state
+        action.productId ??
+        state.inspectProductId ??
+        (state.selectedSlot ? state.slots[state.selectedSlot] : undefined)
+      if (!productId) return state
+      const active = Boolean(state.reactions[productId]?.keep)
       return {
         ...state,
         reactions: {
           ...state.reactions,
-          [productId]: { ...state.reactions[productId], keep: true },
+          [productId]: { ...state.reactions[productId], keep: !active },
         },
-        metrics: bump(state.metrics, productId, "keepVotes"),
-        notice: { kind: "keep", message: "NOTED · KEEP STOCKED" },
+        metrics: bump(state.metrics, productId, "keepVotes", active ? -1 : 1),
+        notice: {
+          kind: "keep",
+          message: active ? "CLEARED · KEEP STOCKED" : "NOTED · KEEP STOCKED",
+        },
       }
     }
     case "OWN": {
       const productId =
-        action.productId ?? (state.selectedSlot ? state.slots[state.selectedSlot] : undefined)
-      if (!productId || state.reactions[productId]?.own) return state
+        action.productId ??
+        state.inspectProductId ??
+        (state.selectedSlot ? state.slots[state.selectedSlot] : undefined)
+      if (!productId) return state
+      const active = Boolean(state.reactions[productId]?.own)
       return {
         ...state,
         reactions: {
           ...state.reactions,
-          [productId]: { ...state.reactions[productId], own: true },
+          [productId]: { ...state.reactions[productId], own: !active },
         },
-        metrics: bump(state.metrics, productId, "alreadyOwned"),
-        notice: { kind: "own", message: "NOTED · ALREADY OWN" },
+        metrics: bump(state.metrics, productId, "alreadyOwned", active ? -1 : 1),
+        notice: {
+          kind: "own",
+          message: active ? "CLEARED · ALREADY OWN" : "NOTED · ALREADY OWN",
+        },
       }
     }
     case "REMOVE_HAUL":
@@ -215,14 +247,16 @@ function reducer(state: MachineState, action: Action): MachineState {
         restockLog: [action.log, ...state.restockLog].slice(0, 20),
         seenIds: unique([...state.seenIds, ...shown]),
         selectedSlot: "A1",
-        inspectorOpen: false,
+        inspectProductId: action.slots.A1 || null,
         metrics: bumpShown(state.metrics, shown),
         dispensingId: null,
         notice: { kind: "restock", message: "MACHINE RESTOCKED" },
       }
     }
     case "DISMISS_INTRO":
-      return { ...state, introDismissed: true }
+      return { ...state, introDismissed: true, introOpen: false }
+    case "OPEN_INTRO":
+      return { ...state, introOpen: true }
     case "SET_HAUL_OPEN":
       return { ...state, haulOpen: action.open, shareOpen: false }
     case "SET_SHARE_OPEN":
@@ -247,10 +281,12 @@ function reducer(state: MachineState, action: Action): MachineState {
 }
 
 type MachineContextValue = MachineState & {
+  ready: boolean
   selectedProduct: ReturnType<typeof getProduct>
   newCount: number
   stockedCount: number
   selectSlot: (slot: SlotCode) => void
+  inspectProduct: (productId: string) => void
   vend: () => void
   keepStocked: (productId?: string) => void
   alreadyOwn: (productId?: string) => void
@@ -259,6 +295,7 @@ type MachineContextValue = MachineState & {
   removeFromHaul: (productId: string) => void
   restock: () => void
   dismissIntro: () => void
+  openIntro: () => void
   setHaulOpen: (open: boolean) => void
   setShareOpen: (open: boolean) => void
   setModal: (modal: ModalId | null) => void
@@ -286,6 +323,10 @@ export function MachineProvider({ children }: { children: ReactNode }) {
           dispensingId: null,
           notice: null,
           inspectorOpen: false,
+          introOpen: false,
+          inspectProductId: saved.selectedSlot
+            ? saved.slots[saved.selectedSlot] || null
+            : null,
         },
       })
     } else {
@@ -350,8 +391,11 @@ export function MachineProvider({ children }: { children: ReactNode }) {
   const keepStocked = useCallback(
     (productId?: string) => {
       const id =
-        productId ?? (state.selectedSlot ? state.slots[state.selectedSlot] : undefined)
-      if (!id || state.reactions[id]?.keep) return
+        productId ??
+        state.inspectProductId ??
+        (state.selectedSlot ? state.slots[state.selectedSlot] : undefined)
+      if (!id) return
+      const active = Boolean(state.reactions[id]?.keep)
       const slotCode =
         state.haul.find((item) => item.productId === id)?.slotCode ??
         (state.selectedSlot && state.slots[state.selectedSlot] === id
@@ -359,20 +403,23 @@ export function MachineProvider({ children }: { children: ReactNode }) {
           : undefined)
       dispatch({ type: "KEEP", productId: id })
       track({
-        name: "keep_stocked",
+        name: active ? "keep_stocked_removed" : "keep_stocked",
         restockId: state.restockId,
         productId: id,
         slotCode,
       })
     },
-    [state.haul, state.reactions, state.restockId, state.selectedSlot, state.slots],
+    [state.haul, state.inspectProductId, state.reactions, state.restockId, state.selectedSlot, state.slots],
   )
 
   const alreadyOwn = useCallback(
     (productId?: string) => {
       const id =
-        productId ?? (state.selectedSlot ? state.slots[state.selectedSlot] : undefined)
-      if (!id || state.reactions[id]?.own) return
+        productId ??
+        state.inspectProductId ??
+        (state.selectedSlot ? state.slots[state.selectedSlot] : undefined)
+      if (!id) return
+      const active = Boolean(state.reactions[id]?.own)
       const slotCode =
         state.haul.find((item) => item.productId === id)?.slotCode ??
         (state.selectedSlot && state.slots[state.selectedSlot] === id
@@ -380,19 +427,20 @@ export function MachineProvider({ children }: { children: ReactNode }) {
           : undefined)
       dispatch({ type: "OWN", productId: id })
       track({
-        name: "already_own",
+        name: active ? "already_own_removed" : "already_own",
         restockId: state.restockId,
         productId: id,
         slotCode,
       })
     },
-    [state.haul, state.reactions, state.restockId, state.selectedSlot, state.slots],
+    [state.haul, state.inspectProductId, state.reactions, state.restockId, state.selectedSlot, state.slots],
   )
 
   const shareItem = useCallback(async () => {
-    if (!state.selectedSlot) return
-    const productId = state.slots[state.selectedSlot]
-    const product = getProduct(productId)
+    const productId =
+      state.inspectProductId ??
+      (state.selectedSlot ? state.slots[state.selectedSlot] : undefined)
+    const product = productId ? getProduct(productId) : undefined
     if (!product) return
     const result = await sharePayload({
       title: `${product.name} · Internet Vending Machine`,
@@ -412,9 +460,9 @@ export function MachineProvider({ children }: { children: ReactNode }) {
       name: "share_item",
       restockId: state.restockId,
       productId: product.id,
-      slotCode: state.selectedSlot,
+      slotCode: state.selectedSlot ?? undefined,
     })
-  }, [state.restockId, state.selectedSlot, state.slots])
+  }, [state.inspectProductId, state.restockId, state.selectedSlot, state.slots])
 
   const shareHaul = useCallback(async () => {
     const ids = state.haul.map((item) => item.productId)
@@ -439,6 +487,7 @@ export function MachineProvider({ children }: { children: ReactNode }) {
         message: result === "copied" ? "HAUL LINK COPIED" : "HAUL SHARED",
       },
     })
+    recordHaulShareSnapshot(ids, state.restockId)
     track({
       name: "share_haul",
       restockId: state.restockId,
@@ -461,9 +510,20 @@ export function MachineProvider({ children }: { children: ReactNode }) {
     }
   }, [state.seenIds, state.slots])
 
-  const selectedProduct = state.selectedSlot
-    ? getProduct(state.slots[state.selectedSlot])
-    : undefined
+  const openIntro = useCallback(() => {
+    dispatch({ type: "OPEN_INTRO" })
+    track({ name: "help_opened" })
+  }, [])
+
+  const inspectProduct = useCallback((productId: string) => {
+    dispatch({ type: "INSPECT_PRODUCT", productId })
+  }, [])
+
+  const selectedProduct = state.inspectProductId
+    ? getProduct(state.inspectProductId)
+    : state.selectedSlot
+      ? getProduct(state.slots[state.selectedSlot])
+      : undefined
 
   const newCount = slotProductIds(state.slots).filter((id) =>
     getProduct(id)?.badges?.includes("new"),
@@ -472,10 +532,12 @@ export function MachineProvider({ children }: { children: ReactNode }) {
   const value = useMemo<MachineContextValue>(
     () => ({
       ...state,
+      ready,
       selectedProduct,
       newCount,
       stockedCount: 16,
       selectSlot,
+      inspectProduct,
       vend,
       keepStocked,
       alreadyOwn,
@@ -485,9 +547,21 @@ export function MachineProvider({ children }: { children: ReactNode }) {
         dispatch({ type: "REMOVE_HAUL", productId }),
       restock,
       dismissIntro: () => dispatch({ type: "DISMISS_INTRO" }),
-      setHaulOpen: (open: boolean) => dispatch({ type: "SET_HAUL_OPEN", open }),
-      setShareOpen: (open: boolean) => dispatch({ type: "SET_SHARE_OPEN", open }),
-      setModal: (modal: ModalId | null) => dispatch({ type: "SET_MODAL", modal }),
+      openIntro,
+      setHaulOpen: (open: boolean) => {
+        if (open && !state.haulOpen) track({ name: "haul_opened" })
+        dispatch({ type: "SET_HAUL_OPEN", open })
+      },
+      setShareOpen: (open: boolean) => {
+        if (open && !state.shareOpen) track({ name: "haul_card_viewed" })
+        dispatch({ type: "SET_SHARE_OPEN", open })
+      },
+      setModal: (modal: ModalId | null) => {
+        if (modal === "suggest") track({ name: "suggest_opened" })
+        if (modal === "stock") track({ name: "stock_product_opened" })
+        if (modal === "follow") track({ name: "follow_restocks_opened" })
+        dispatch({ type: "SET_MODAL", modal })
+      },
       setInspectorOpen: (open: boolean) =>
         dispatch({ type: "SET_INSPECTOR_OPEN", open }),
     }),
@@ -495,6 +569,9 @@ export function MachineProvider({ children }: { children: ReactNode }) {
       alreadyOwn,
       keepStocked,
       newCount,
+      openIntro,
+      inspectProduct,
+      ready,
       restock,
       selectSlot,
       selectedProduct,

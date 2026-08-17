@@ -13,11 +13,13 @@ export function UtilityBar() {
 
   return (
     <div className="utility">
-      {actions.map((action) => (
-        <button key={action.id} type="button" onClick={() => setModal(action.id)}>
-          {action.label}
-        </button>
-      ))}
+      <div className="utility__actions">
+        {actions.map((action) => (
+          <button key={action.id} type="button" onClick={() => setModal(action.id)}>
+            {action.label}
+          </button>
+        ))}
+      </div>
       <p className="service-plate">IVM-001 · TEST UNIT · NO PURCHASE</p>
     </div>
   )

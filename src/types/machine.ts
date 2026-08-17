@@ -13,6 +13,13 @@ export type RestockLogEntry = {
   retainedIds: string[]
 }
 
+export type HaulSnapshot = {
+  id: string
+  createdAt: string
+  productIds: string[]
+  restockId?: string
+}
+
 export type ModalId = "suggest" | "stock" | "follow" | "log"
 
 export type NoticeKind = "vend" | "keep" | "own" | "share" | "restock"

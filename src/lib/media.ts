@@ -19,6 +19,9 @@ export function useMediaQuery(query: string): boolean {
 
 export const MOBILE_MACHINE_QUERY = "(max-width: 839px)"
 
-/** Touch tablets in the mid-width band. Fine-pointer compact desktop stays on the rail. */
-export const TABLET_MACHINE_QUERY =
-  "(min-width: 840px) and (max-width: 1180px) and (pointer: coarse)"
+/**
+ * Overlay band: from the end of mobile up to just below the viewport
+ * width where the desktop rail can keep KEEP STOCKED / ALREADY OWN / SHARE
+ * on one row (~300px inspector content, ~1100px viewport).
+ */
+export const TABLET_MACHINE_QUERY = "(min-width: 840px) and (max-width: 1099px)"

@@ -2,11 +2,19 @@ export type AnalyticsEventName =
   | "slot_selected"
   | "product_vended"
   | "keep_stocked"
+  | "keep_stocked_removed"
   | "already_own"
+  | "already_own_removed"
   | "share_item"
   | "share_haul"
   | "restock_triggered"
   | "product_shown"
+  | "help_opened"
+  | "suggest_opened"
+  | "stock_product_opened"
+  | "follow_restocks_opened"
+  | "haul_opened"
+  | "haul_card_viewed"
 
 export type AnalyticsEvent = {
   name: AnalyticsEventName

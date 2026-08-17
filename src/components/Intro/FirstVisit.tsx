@@ -1,8 +1,8 @@
 import { useMachine } from "../../state/MachineContext"
 
 export function FirstVisit() {
-  const { introDismissed, dismissIntro } = useMachine()
-  if (introDismissed) return null
+  const { introDismissed, introOpen, dismissIntro } = useMachine()
+  if (introDismissed && !introOpen) return null
 
   return (
     <div
@@ -15,7 +15,7 @@ export function FirstVisit() {
     >
       <div className="panel">
         <h2 id="intro-title">TEST THE MACHINE</h2>
-        <p>We&apos;re figuring out what belongs in here.</p>
+        <p>We&apos;re stocking the machine. Help decide what deserves a slot.</p>
         <p>
           Browse the stock and hit <b>VEND</b> on anything you&apos;d genuinely consider buying.
         </p>
@@ -27,6 +27,16 @@ export function FirstVisit() {
         </p>
         <p>
           <b>Nothing will actually be purchased.</b>
+        </p>
+        <p className="intro__credit">
+          Built by Ryan Colgin ·{" "}
+          <a
+            href="https://x.com/ryancolgin"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            @ryancolgin
+          </a>
         </p>
         <div className="panel__actions" style={{ marginTop: 16 }}>
           <button type="button" className="vend" onClick={dismissIntro}>

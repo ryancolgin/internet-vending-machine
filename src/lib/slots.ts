@@ -16,6 +16,13 @@ export function assignToSlots(productIds: string[]): Record<SlotCode, string> {
   return slots
 }
 
+export function slotForProduct(
+  slots: Record<SlotCode, string>,
+  productId: string,
+): SlotCode | undefined {
+  return SLOT_CODES.find((code) => slots[code] === productId)
+}
+
 export function slotProductIds(slots: Record<SlotCode, string>): string[] {
   return SLOT_CODES.map((code) => slots[code]).filter(Boolean)
 }
