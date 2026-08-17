@@ -955,6 +955,10 @@
   display: block;
 }
 
+.inspector-sheet__backdrop {
+  display: none;
+}
+
 .inspector-sheet__panel {
   background:
     linear-gradient(180deg, var(--enclosure-hi) 0%, var(--enclosure) 100%);
@@ -993,6 +997,10 @@
 
 .inspector-sheet__chrome .inspector__plate {
   margin-bottom: 0;
+}
+
+.inspector-sheet__body {
+  display: contents;
 }
 
 .inspector--sheet {
@@ -1108,6 +1116,76 @@
 
   .machine__dock .tray {
     height: 76px;
+  }
+
+  .inspector-sheet {
+    top: 0;
+    left: 0;
+    right: auto;
+    bottom: auto;
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    overscroll-behavior: none;
+  }
+
+  .inspector-sheet__backdrop {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    z-index: 0;
+    background: rgba(28, 26, 22, 0.28);
+  }
+
+  .inspector-sheet__panel {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 100%;
+    height: 60dvh;
+    max-height: min(80dvh, calc(100dvh - 12px));
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: max(0px, env(safe-area-inset-bottom, 0px));
+  }
+
+  .inspector-sheet__grab {
+    flex: 0 0 auto;
+    touch-action: none;
+    user-select: none;
+  }
+
+  .inspector-sheet__handle {
+    touch-action: none;
+  }
+
+  .inspector-sheet__body {
+    display: block;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .inspector--sheet .inspector__controls {
+    padding-bottom: max(18px, env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (max-width: 839px) and (orientation: landscape) {
+  .inspector-sheet__panel {
+    height: min(68dvh, 100%);
+    max-height: min(72dvh, calc(100dvh - 8px));
   }
 }
 
