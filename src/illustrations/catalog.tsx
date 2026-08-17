@@ -7,7 +7,16 @@ type GlyphProps = {
 
 function Frame({ children, title }: { children: ReactNode; title: string }) {
   return (
-    <svg viewBox="0 0 160 160" role="img" aria-label={title} className="product-figure__svg">
+    <svg
+      viewBox="0 0 160 160"
+      width="100%"
+      height="100%"
+      preserveAspectRatio="xMidYMid meet"
+      overflow="hidden"
+      role="img"
+      aria-label={title}
+      className="product-figure__svg"
+    >
       <title>{title}</title>
       {children}
     </svg>
