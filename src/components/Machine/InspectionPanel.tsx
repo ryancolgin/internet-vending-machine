@@ -111,6 +111,9 @@ type SheetDrag = {
   velocity: number
 }
 
+const SHEET_RESTING_DVH = 55
+const SHEET_EXPANDED_DVH = 80
+
 export function InspectionPanel() {
   const { selectedSlot, selectedProduct, inspectorOpen, setInspectorOpen, slots } =
     useMachine()
@@ -120,49 +123,15 @@ export function InspectionPanel() {
   const inMachine = Boolean(
     selectedProduct && slotForProduct(slots, selectedProduct.id),
   )
+  const [expanded, setExpanded] = useState(false)
   const [dragY, setDragY] = useState(0)
   const [dragging, setDragging] = useState(false)
   const drag = useRef<SheetDrag | null>(null)
   const suppressHandleClick = useRef(false)
 
   useEffect(() => {
-    if (!isMobile || !inspectorOpen) return
-    const html = document.documentElement
-    const { body } = document
-    const scrollX = window.scrollX
-    const scrollY = window.scrollY
-    const prev = {
-      htmlOverflow: html.style.overflow,
-      bodyOverflow: body.style.overflow,
-      bodyPosition: body.style.position,
-      bodyTop: body.style.top,
-      bodyLeft: body.style.left,
-      bodyRight: body.style.right,
-      bodyWidth: body.style.width,
-    }
-    html.classList.add("inspector-open")
-    html.style.overflow = "hidden"
-    body.style.overflow = "hidden"
-    body.style.position = "fixed"
-    body.style.top = `-${scrollY}px`
-    body.style.left = `-${scrollX}px`
-    body.style.right = "0"
-    body.style.width = "100%"
-    return () => {
-      html.classList.remove("inspector-open")
-      html.style.overflow = prev.htmlOverflow
-      body.style.overflow = prev.bodyOverflow
-      body.style.position = prev.bodyPosition
-      body.style.top = prev.bodyTop
-      body.style.left = prev.bodyLeft
-      body.style.right = prev.bodyRight
-      body.style.width = prev.bodyWidth
-      window.scrollTo(scrollX, scrollY)
-    }
-  }, [inspectorOpen, isMobile])
-
-  useEffect(() => {
     if (!inspectorOpen) {
+      setExpanded(false)
       setDragY(0)
       setDragging(false)
       drag.current = null
@@ -170,6 +139,7 @@ export function InspectionPanel() {
   }, [inspectorOpen])
 
   const closeSheet = () => setInspectorOpen(false)
+  const snapHeight = expanded ? SHEET_EXPANDED_DVH : SHEET_RESTING_DVH
 
   const onGrabPointerDown = (event: PointerEvent<HTMLElement>) => {
     if (!isMobile || event.button !== 0) return
@@ -189,7 +159,7 @@ export function InspectionPanel() {
   const onGrabPointerMove = (event: PointerEvent<HTMLElement>) => {
     const active = drag.current
     if (!active || event.pointerId !== active.pointerId) return
-    const y = Math.max(0, event.clientY - active.startY)
+    const y = event.clientY - active.startY
     const dt = event.timeStamp - active.lastT
     if (dt > 0) active.velocity = (event.clientY - active.lastY) / dt
     active.lastY = event.clientY
@@ -200,18 +170,27 @@ export function InspectionPanel() {
   const endGrab = (event: PointerEvent<HTMLElement>) => {
     const active = drag.current
     if (!active || event.pointerId !== active.pointerId) return
-    const y = Math.max(0, event.clientY - active.startY)
-    const flick = active.velocity > 0.55
+    const y = event.clientY - active.startY
+    const flickUp = active.velocity < -0.45
+    const flickDown = active.velocity > 0.45
     drag.current = null
     setDragging(false)
-    if (y > 10) suppressHandleClick.current = true
-    if (y > 88 || flick) {
-      closeSheet()
+    if (Math.abs(y) > 10) suppressHandleClick.current = true
+
+    if (y < -36 || flickUp) {
+      setExpanded(true)
       setDragY(0)
       return
     }
-    if (y <= 10 && (event.target as HTMLElement).closest(".inspector-sheet__handle")) {
+    if (expanded && (y > 36 || flickDown)) {
+      setExpanded(false)
+      setDragY(0)
+      return
+    }
+    if (!expanded && (y > 140 || (flickDown && y > 72))) {
       closeSheet()
+      setDragY(0)
+      return
     }
     setDragY(0)
   }
@@ -221,33 +200,30 @@ export function InspectionPanel() {
       suppressHandleClick.current = false
       return
     }
-    closeSheet()
+    setExpanded((open) => !open)
   }
 
   if (overlayLayout) {
     if (!inspectorOpen || !selectedProduct) return null
+    const liveHeight = dragging
+      ? `clamp(48dvh, calc(${snapHeight}dvh - ${dragY}px), 84dvh)`
+      : `${snapHeight}dvh`
     return (
       <div
-        className={`inspector-sheet${isTablet ? " inspector-sheet--tablet" : ""}`}
-        role="dialog"
-        aria-modal="true"
+        className={`inspector-sheet${isTablet ? " inspector-sheet--tablet" : ""}${
+          isMobile && expanded ? " inspector-sheet--expanded" : ""
+        }`}
+        role={isTablet ? "dialog" : "region"}
+        aria-modal={isTablet ? true : undefined}
         aria-labelledby="inspector-sheet-title"
       >
-        {isMobile ? (
-          <button
-            type="button"
-            className="inspector-sheet__backdrop"
-            aria-label="Close inspector"
-            onClick={closeSheet}
-          />
-        ) : null}
         <div
           className="inspector-sheet__panel"
           style={
             isMobile
               ? {
-                  transform: dragY ? `translate3d(0, ${dragY}px, 0)` : undefined,
-                  transition: dragging ? "none" : "transform 280ms var(--ease)",
+                  height: liveHeight,
+                  transition: dragging ? "none" : "height 280ms var(--ease)",
                 }
               : undefined
           }
@@ -262,7 +238,7 @@ export function InspectionPanel() {
             <button
               type="button"
               className="inspector-sheet__handle"
-              aria-label="Close inspector"
+              aria-label={expanded ? "Collapse selected panel" : "Expand selected panel"}
               onClick={onHandleClick}
             />
             <div className="inspector-sheet__chrome">

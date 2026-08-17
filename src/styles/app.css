@@ -1,5 +1,9 @@
 .room {
   min-height: 100svh;
+  min-height: 100dvh;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   padding: 28px 16px 48px;
   display: flex;
   justify-content: center;
@@ -11,10 +15,20 @@
 
 .room__inner {
   width: min(1080px, 100%);
+  max-width: 100%;
+  min-width: 0;
 }
 
 @media (max-width: 839px) {
   .room {
     padding: 12px 10px 32px;
+  }
+
+  .room:has(.inspector-sheet) {
+    padding-bottom: calc(16px + 55dvh);
+  }
+
+  .room:has(.inspector-sheet--expanded) {
+    padding-bottom: calc(16px + 80dvh);
   }
 }
