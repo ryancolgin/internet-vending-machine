@@ -1,5 +1,11 @@
 import { ProductFigure } from "../ProductFigure"
-import { MOBILE_MACHINE_QUERY, useMediaQuery } from "../../lib/media"
+import { DispenseTray } from "./DispenseTray"
+import { RestockControl } from "./RestockControl"
+import {
+  MOBILE_MACHINE_QUERY,
+  TABLET_MACHINE_QUERY,
+  useMediaQuery,
+} from "../../lib/media"
 import { useMachine } from "../../state/MachineContext"
 import { NEXT_RESTOCK_LABEL } from "../../types/machine"
 import type { Product, ProductBadge, SlotCode } from "../../types/product"
@@ -27,7 +33,7 @@ function InspectorBody({ selectedSlot, selectedProduct, compact = false }: Inspe
   const hasPhoto = Boolean(selectedProduct.productImage)
 
   return (
-    <>
+    <div className="inspector__select">
       <div
         className={`inspection__stage${hasPhoto ? " inspection__stage--photo" : ""}`}
       >
@@ -44,59 +50,89 @@ function InspectorBody({ selectedSlot, selectedProduct, compact = false }: Inspe
           ) : null}
           {statusLine(badge) ? <span>{statusLine(badge)}</span> : null}
         </p>
-        <div className={`inspection__actions${compact ? " inspection__actions--compact" : ""}`}>
-          <button type="button" className="vend" onClick={vend}>
-            VEND →
-          </button>
-          <div className="inspection__secondary">
-            <button
-              type="button"
-              className={`ghost${notedKeep ? " ghost--on" : ""}`}
-              onClick={() => keepStocked()}
-            >
-              KEEP STOCKED
-            </button>
-            <button
-              type="button"
-              className={`ghost${notedOwn ? " ghost--on" : ""}`}
-              onClick={() => alreadyOwn()}
-            >
-              ALREADY OWN
-            </button>
-            <button type="button" className="ghost" onClick={() => void shareItem()}>
-              SHARE
-            </button>
-          </div>
-          {notice ? <span className="notice">{notice.message}</span> : null}
-        </div>
       </div>
-    </>
+      <div className={`inspection__actions${compact ? " inspection__actions--compact" : ""}`}>
+        <button type="button" className="vend" onClick={vend}>
+          VEND →
+        </button>
+        <div className="inspection__secondary">
+          <button
+            type="button"
+            className={`ghost${notedKeep ? " ghost--on" : ""}`}
+            onClick={() => keepStocked()}
+          >
+            KEEP STOCKED
+          </button>
+          <button
+            type="button"
+            className={`ghost${notedOwn ? " ghost--on" : ""}`}
+            onClick={() => alreadyOwn()}
+          >
+            ALREADY OWN
+          </button>
+          <button type="button" className="ghost" onClick={() => void shareItem()}>
+            SHARE
+          </button>
+        </div>
+        {notice ? <span className="notice">{notice.message}</span> : null}
+      </div>
+    </div>
   )
 }
 
 export function InspectionPanel() {
   const { selectedSlot, selectedProduct, inspectorOpen, setInspectorOpen } = useMachine()
   const isMobile = useMediaQuery(MOBILE_MACHINE_QUERY)
+  const isTablet = useMediaQuery(TABLET_MACHINE_QUERY)
+  const overlayLayout = isMobile || isTablet
 
   if (!selectedProduct || !selectedSlot) {
     return (
       <aside className="inspector inspector--rail" aria-live="polite" id="inspection">
-        <p className="inspector__plate">SELECT</p>
-        <p className="inspection__copy">Select a slot.</p>
+        <div className="inspector__card">
+          <p className="inspector__plate">SELECT</p>
+          <p className="inspection__copy">Select a slot.</p>
+        </div>
+        {!overlayLayout ? (
+          <>
+            <div className="inspector__mechanism">
+              <DispenseTray />
+            </div>
+            <div className="inspector__controls">
+              <RestockControl />
+            </div>
+          </>
+        ) : null}
       </aside>
     )
   }
 
   return (
     <>
-      <aside className="inspector inspector--rail" aria-live="polite" id={isMobile ? undefined : "inspection"}>
-        <p className="inspector__plate">SELECTED</p>
-        <InspectorBody selectedSlot={selectedSlot} selectedProduct={selectedProduct} />
+      <aside
+        className="inspector inspector--rail"
+        aria-live="polite"
+        id={overlayLayout ? undefined : "inspection"}
+      >
+        <div className="inspector__card">
+          <p className="inspector__plate">SELECTED</p>
+          <InspectorBody selectedSlot={selectedSlot} selectedProduct={selectedProduct} />
+        </div>
+        {!overlayLayout ? (
+          <>
+            <div className="inspector__mechanism">
+              <DispenseTray />
+            </div>
+            <div className="inspector__controls">
+              <RestockControl />
+            </div>
+          </>
+        ) : null}
       </aside>
 
-      {isMobile && inspectorOpen ? (
+      {overlayLayout && inspectorOpen ? (
         <div
-          className="inspector-sheet"
+          className={`inspector-sheet${isTablet ? " inspector-sheet--tablet" : ""}`}
           role="dialog"
           aria-labelledby="inspector-sheet-title"
         >
@@ -119,12 +155,25 @@ export function InspectionPanel() {
                 CLOSE
               </button>
             </div>
-            <div className="inspector inspector--sheet" id="inspection">
-              <InspectorBody
-                selectedSlot={selectedSlot}
-                selectedProduct={selectedProduct}
-                compact
-              />
+            <div
+              className={`inspector inspector--sheet${isTablet ? " inspector--tablet" : ""}`}
+              id="inspection"
+            >
+              <div className="inspector__card">
+                <InspectorBody
+                  selectedSlot={selectedSlot}
+                  selectedProduct={selectedProduct}
+                  compact={isMobile}
+                />
+              </div>
+              <div className="inspector__output">
+                <div className="inspector__mechanism">
+                  <DispenseTray />
+                </div>
+                <div className="inspector__controls">
+                  <RestockControl />
+                </div>
+              </div>
             </div>
           </div>
         </div>

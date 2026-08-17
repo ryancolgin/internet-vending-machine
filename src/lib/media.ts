@@ -18,3 +18,7 @@ export function useMediaQuery(query: string): boolean {
 }
 
 export const MOBILE_MACHINE_QUERY = "(max-width: 839px)"
+
+/** Touch tablets in the mid-width band. Fine-pointer compact desktop stays on the rail. */
+export const TABLET_MACHINE_QUERY =
+  "(min-width: 840px) and (max-width: 1180px) and (pointer: coarse)"

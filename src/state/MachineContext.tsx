@@ -170,7 +170,6 @@ function reducer(state: MachineState, action: Action): MachineState {
           kind: "vend",
           message: already ? "ALREADY IN YOUR HAUL" : "VENDED",
         },
-        inspectorOpen: false,
       }
     }
     case "KEEP": {
@@ -310,7 +309,7 @@ export function MachineProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!state.dispensingId) return
-    const timer = window.setTimeout(() => dispatch({ type: "CLEAR_DISPENSE" }), 1400)
+    const timer = window.setTimeout(() => dispatch({ type: "CLEAR_DISPENSE" }), 2400)
     return () => window.clearTimeout(timer)
   }, [state.dispensingId])
 
