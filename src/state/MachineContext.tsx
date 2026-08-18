@@ -44,6 +44,7 @@ export type MachineState = {
   introOpen: boolean
   haulOpen: boolean
   shareOpen: boolean
+  sharedHaulIds: string[] | null
   modal: ModalId | null
   dispensingId: string | null
   notice: Notice | null
@@ -65,6 +66,7 @@ type Action =
   | { type: "OPEN_INTRO" }
   | { type: "SET_HAUL_OPEN"; open: boolean }
   | { type: "SET_SHARE_OPEN"; open: boolean }
+  | { type: "OPEN_SHARED_HAUL"; productIds: string[] }
   | { type: "SET_MODAL"; modal: ModalId | null }
   | { type: "CLEAR_DISPENSE" }
   | { type: "SET_INSPECTOR_OPEN"; open: boolean }
@@ -134,6 +136,7 @@ function createInitialState(): MachineState {
     introOpen: false,
     haulOpen: false,
     shareOpen: false,
+    sharedHaulIds: null,
     modal: null,
     dispensingId: null,
     notice: null,
@@ -291,9 +294,21 @@ function reducer(state: MachineState, action: Action): MachineState {
     case "OPEN_INTRO":
       return { ...state, introOpen: true }
     case "SET_HAUL_OPEN":
-      return { ...state, haulOpen: action.open, shareOpen: false }
+      return { ...state, haulOpen: action.open, shareOpen: false, sharedHaulIds: null }
     case "SET_SHARE_OPEN":
-      return { ...state, shareOpen: action.open, haulOpen: action.open ? false : state.haulOpen }
+      return {
+        ...state,
+        shareOpen: action.open,
+        haulOpen: action.open ? false : state.haulOpen,
+        sharedHaulIds: null,
+      }
+    case "OPEN_SHARED_HAUL":
+      return {
+        ...state,
+        sharedHaulIds: action.productIds,
+        shareOpen: true,
+        haulOpen: false,
+      }
     case "SET_MODAL":
       return { ...state, modal: action.modal }
     case "SET_INSPECTOR_OPEN":
@@ -332,6 +347,7 @@ type MachineContextValue = MachineState & {
   openIntro: () => void
   setHaulOpen: (open: boolean) => void
   setShareOpen: (open: boolean) => void
+  openSharedHaul: (productIds: string[]) => void
   setModal: (modal: ModalId | null) => void
   setInspectorOpen: (open: boolean) => void
 }
@@ -353,6 +369,7 @@ export function MachineProvider({ children }: { children: ReactNode }) {
           sessionId: getSessionId(),
           haulOpen: false,
           shareOpen: false,
+          sharedHaulIds: null,
           modal: null,
           dispensingId: null,
           notice: null,
@@ -497,7 +514,7 @@ export function MachineProvider({ children }: { children: ReactNode }) {
   }, [state.inspectProductId, state.restockId, state.selectedSlot, state.slots])
 
   const shareHaul = useCallback(async () => {
-    const ids = state.haul.map((item) => item.productId)
+    const ids = state.sharedHaulIds ?? state.haul.map((item) => item.productId)
     const url = haulShareUrl(ids)
     const result = await sharePayload(url)
     if (result === "failed") return
@@ -513,7 +530,7 @@ export function MachineProvider({ children }: { children: ReactNode }) {
       name: "share_haul",
       restockId: state.restockId,
     })
-  }, [state.haul, state.restockId])
+  }, [state.haul, state.restockId, state.sharedHaulIds])
 
   const restock = useCallback(() => {
     const { slots, log } = restockMachine(state.slots, state.seenIds)
@@ -581,6 +598,12 @@ export function MachineProvider({ children }: { children: ReactNode }) {
       setShareOpen: (open: boolean) => {
         if (open && !state.shareOpen) track({ name: "haul_card_viewed" })
         dispatch({ type: "SET_SHARE_OPEN", open })
+      },
+      openSharedHaul: (productIds: string[]) => {
+        const ids = unique(productIds.filter((id) => Boolean(getProduct(id))))
+        if (ids.length === 0) return
+        if (!state.shareOpen) track({ name: "haul_card_viewed" })
+        dispatch({ type: "OPEN_SHARED_HAUL", productIds: ids })
       },
       setModal: (modal: ModalId | null) => {
         if (modal === "suggest") track({ name: "suggest_opened" })

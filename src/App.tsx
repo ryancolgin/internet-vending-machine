@@ -4,11 +4,12 @@ import { HaulDrawer } from "./components/Haul/HaulDrawer"
 import { HaulShareCard } from "./components/Haul/HaulShareCard"
 import { FirstVisit } from "./components/Intro/FirstVisit"
 import { InfoModal } from "./components/Modals/InfoModal"
-import { parseShareHash } from "./lib/share"
+import { parseShareHash, clearHaulShareHash } from "./lib/share"
 import { useMachine } from "./state/MachineContext"
 
 function HashBridge() {
-  const { setShareOpen, selectSlot, inspectSharedProduct, slots, ready } = useMachine()
+  const { selectSlot, inspectSharedProduct, openSharedHaul, slots, ready } =
+    useMachine()
   const consumedHash = useRef<string | null>(null)
 
   useEffect(() => {
@@ -23,7 +24,8 @@ function HashBridge() {
       if (consumedHash.current === hash) return
       consumedHash.current = hash
       if (parsed.haulIds?.length) {
-        setShareOpen(true)
+        openSharedHaul(parsed.haulIds)
+        clearHaulShareHash()
         return
       }
       if (parsed.productId) {
@@ -37,7 +39,7 @@ function HashBridge() {
     apply()
     window.addEventListener("hashchange", apply)
     return () => window.removeEventListener("hashchange", apply)
-  }, [inspectSharedProduct, ready, selectSlot, setShareOpen, slots])
+  }, [inspectSharedProduct, openSharedHaul, ready, selectSlot, slots])
 
   return null
 }

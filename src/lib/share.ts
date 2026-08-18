@@ -54,3 +54,13 @@ export function parseShareHash(hash: string): {
   }
   return {}
 }
+
+export function clearHaulShareHash(): void {
+  const parsed = parseShareHash(window.location.hash)
+  if (!parsed.haulIds?.length) return
+  history.replaceState(
+    null,
+    "",
+    `${window.location.pathname}${window.location.search}`,
+  )
+}

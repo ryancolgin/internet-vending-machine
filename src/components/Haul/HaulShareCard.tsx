@@ -1,5 +1,4 @@
 import { getProduct } from "../../data/products"
-import { parseShareHash } from "../../lib/share"
 import type { Product } from "../../types/product"
 import { ProductFigure, type ProductVisual } from "../ProductFigure"
 import { useMachine } from "../../state/MachineContext"
@@ -14,11 +13,10 @@ function haulCardFoot(count: number): string {
 }
 
 export function HaulShareCard() {
-  const { shareOpen, haul, setShareOpen, shareHaul, notice } = useMachine()
+  const { shareOpen, haul, sharedHaulIds, setShareOpen, shareHaul, notice } = useMachine()
   if (!shareOpen) return null
 
-  const hashed = parseShareHash(window.location.hash).haulIds ?? []
-  const ids = hashed.length > 0 ? hashed : haul.map((item) => item.productId)
+  const ids = sharedHaulIds ?? haul.map((item) => item.productId)
   const products = ids
     .map((id) => getProduct(id))
     .filter((product): product is Product => Boolean(product))
