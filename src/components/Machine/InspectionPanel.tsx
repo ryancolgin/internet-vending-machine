@@ -127,7 +127,7 @@ export function InspectionPanel() {
   const inMachine = Boolean(
     selectedProduct && slotForProduct(slots, selectedProduct.id),
   )
-  const [expanded, setExpanded] = useState(false)
+  const [expanded, setExpanded] = useState(true)
   const [dragY, setDragY] = useState(0)
   const [dragging, setDragging] = useState(false)
   const drag = useRef<SheetDrag | null>(null)
@@ -135,7 +135,7 @@ export function InspectionPanel() {
 
   useEffect(() => {
     if (!inspectorOpen) {
-      setExpanded(false)
+      setExpanded(true)
       setDragY(0)
       setDragging(false)
       drag.current = null
