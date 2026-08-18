@@ -22,6 +22,21 @@ export const ILLUSTRATION_KEYS = [
   "cutter",
   "window",
   "spark",
+  "timer",
+  "bottle",
+  "drain",
+  "patch",
+  "cable",
+  "brush",
+  "towel",
+  "globe",
+  "transfer",
+  "document",
+  "browser",
+  "menu-bar",
+  "calendar",
+  "type",
+  "kiosk",
 ] as const
 
 export type IllustrationKey = (typeof ILLUSTRATION_KEYS)[number]

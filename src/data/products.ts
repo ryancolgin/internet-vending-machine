@@ -721,7 +721,7 @@ export const products: Product[] = [
     priceLabel: "FREE",
     source: "Excalidraw",
     sourceUrl: "https://excalidraw.com",
-    illustration: "window",
+    illustration: "browser",
     machineCopy:
       "A browser whiteboard that looks like a thoughtful napkin sketch. Diagrams without the enterprise aftertaste.",
     status: "active",
@@ -741,7 +741,7 @@ export const products: Product[] = [
     priceLabel: "FREE",
     source: "Photopea",
     sourceUrl: "https://www.photopea.com",
-    illustration: "window",
+    illustration: "browser",
     machineCopy:
       "Photoshop-shaped editing in a tab. Open the PSD, export, close. No install argument.",
     status: "test",
@@ -801,7 +801,7 @@ export const products: Product[] = [
     priceLabel: "FREE",
     source: "Hidden Bar",
     sourceUrl: "https://github.com/dwarvesf/hidden",
-    illustration: "window",
+    illustration: "menu-bar",
     machineCopy:
       "Tuck the menu bar icons you do not need to see. A tiny Mac utility that makes the top of the screen quieter.",
     status: "active",
@@ -880,7 +880,7 @@ export const products: Product[] = [
     priceLabel: "$7.95",
     source: "REI",
     sourceUrl: "https://www.rei.com/product/159542/gear-aid-tenacious-tape-mini-patches",
-    illustration: "tape",
+    illustration: "patch",
     machineCopy:
       "Clear ripstop patches for the tear you notice at the trailhead. Small enough to live in a hip belt.",
     status: "test",
@@ -937,7 +937,7 @@ export const products: Product[] = [
     priceLabel: "$29.90",
     source: "Rolling Square",
     sourceUrl: "https://rollingsquare.com/products/incharge-x",
-    illustration: "charger",
+    illustration: "cable",
     machineCopy:
       "One keychain cable that speaks USB-C, Lightning, and Micro-USB. The adapter drawer, retired.",
     status: "test",
@@ -975,7 +975,7 @@ export const products: Product[] = [
     priceLabel: "$9.99",
     source: "OXO",
     sourceUrl: "https://www.oxo.com/electronics-cleaning-brush.html",
-    illustration: "kit",
+    illustration: "brush",
     machineCopy:
       "Soft bristles for the keyboard gaps a cloth cannot reach. The unglamorous part of keeping a desk honest.",
     status: "test",
@@ -1013,7 +1013,7 @@ export const products: Product[] = [
     priceLabel: "$14.99",
     source: "TubShroom",
     sourceUrl: "https://www.tubshroom.com/products/tubshroom-ultra",
-    illustration: "kit",
+    illustration: "drain",
     machineCopy:
       "A drain catcher that collects hair before the pipe does. The least poetic object in the machine, and one of the most useful.",
     status: "test",
@@ -1032,7 +1032,7 @@ export const products: Product[] = [
     priceLabel: "$39.99",
     source: "TickTime",
     sourceUrl: "https://www.ticktime.store/products/ticktime-2-max",
-    illustration: "spark",
+    illustration: "timer",
     machineCopy:
       "A physical timer you twist instead of unlock. Focus as a knob, not a notification.",
     status: "test",
@@ -1051,7 +1051,7 @@ export const products: Product[] = [
     priceLabel: "$13.95",
     source: "REI",
     sourceUrl: "https://www.rei.com/product/143876/noso-patchdazzle-gear-repair-kit",
-    illustration: "kit",
+    illustration: "patch",
     machineCopy:
       "Peel-and-stick patches for the jacket that is not ready to retire. Repair as decoration, if you want it that way.",
     status: "test",
@@ -1070,7 +1070,7 @@ export const products: Product[] = [
     priceLabel: "$4.50",
     source: "Dr. Bronner's",
     sourceUrl: "https://www.drbronner.com/products/citrus-pure-castile-liquid-soap",
-    illustration: "kit",
+    illustration: "bottle",
     machineCopy:
       "A travel bottle of the soap that also washes dishes, bodies, and the occasional campsite pan. One liquid, many jobs.",
     status: "test",
@@ -1089,7 +1089,7 @@ export const products: Product[] = [
     priceLabel: "$23.95",
     source: "Nomadix",
     sourceUrl: "https://www.nomadix.co/products/tiny-towel-3-pack-patterns",
-    illustration: "cloth",
+    illustration: "towel",
     machineCopy:
       "Three compact towels that pack flatter than they should. Gym, sink, or picnic — then they hang dry.",
     status: "test",
@@ -1107,7 +1107,7 @@ export const products: Product[] = [
     priceLabel: "$0+",
     source: "Gumroad",
     sourceUrl: "https://jordanbaird.gumroad.com/l/ice",
-    illustration: "window",
+    illustration: "menu-bar",
     machineCopy:
       "A menu bar manager that hides the icons and lets you restyle the bar itself. The notch's more considerate roommate.",
     status: "test",
@@ -1144,7 +1144,7 @@ export const products: Product[] = [
     priceLabel: "$4.99",
     source: "Gumroad",
     sourceUrl: "https://tadejumo.gumroad.com/l/ymtbmr",
-    illustration: "window",
+    illustration: "menu-bar",
     machineCopy:
       "Copy a whole AI chat from the browser to the clipboard in one click. Second opinions without the retype.",
     status: "test",
@@ -1198,7 +1198,7 @@ export const products: Product[] = [
     priceLabel: "$0+",
     source: "Gumroad",
     sourceUrl: "https://goodsnooze.gumroad.com/l/nASbe",
-    illustration: "window",
+    illustration: "menu-bar",
     machineCopy:
       "Puts a custom image on the Mac menu bar — a face, a stripe, a joke. Display as decoration.",
     status: "test",
@@ -1254,7 +1254,7 @@ export const products: Product[] = [
     priceLabel: "$29",
     source: "AppSumo",
     sourceUrl: "https://appsumo.com/products/tidycal/",
-    illustration: "window",
+    illustration: "calendar",
     machineCopy:
       "A scheduling page you buy once. Bookings, payments, and a calendar link without a monthly meter.",
     status: "test",
@@ -1311,7 +1311,7 @@ export const products: Product[] = [
     priceLabel: "€0+",
     source: "Gumroad",
     sourceUrl: "https://productfield.gumroad.com/l/canvas",
-    illustration: "book",
+    illustration: "document",
     machineCopy:
       "The poster version of the Field, with instructions printed on it. Pay what you want; print it big.",
     status: "test",
@@ -1349,7 +1349,7 @@ export const products: Product[] = [
     priceLabel: "$4",
     source: "Gumroad",
     sourceUrl: "https://odpomery.gumroad.com/",
-    illustration: "book",
+    illustration: "kiosk",
     machineCopy:
       "A field guide to modernist kiosks from a country that does not exist. Architecture, fiction, and municipal furniture.",
     status: "test",
@@ -1369,7 +1369,7 @@ export const products: Product[] = [
     priceLabel: "FREE",
     source: "Gumroad",
     sourceUrl: "https://logopackage.gumroad.com/l/logo-file-format-cheat-sheet",
-    illustration: "book",
+    illustration: "document",
     machineCopy:
       "Which file format to send, and why the other one will get you a reply. A one-page save from the export argument.",
     status: "test",
@@ -1404,7 +1404,7 @@ export const products: Product[] = [
     price: 17,
     priceLabel: "$17",
     source: "Gumroad",
-    illustration: "book",
+    illustration: "document",
     machineCopy:
       "A household reference for the jobs that get expensive when you wait. The unglamorous manual for keeping a place standing.",
     status: "test",
@@ -1423,7 +1423,7 @@ export const products: Product[] = [
     priceLabel: "FREE",
     source: "LocalSend",
     sourceUrl: "https://localsend.org",
-    illustration: "window",
+    illustration: "transfer",
     machineCopy:
       "Send files across phones, laptops, and desktops on the same network. No account, no upload, no introduction to a server.",
     status: "test",
@@ -1442,7 +1442,7 @@ export const products: Product[] = [
     priceLabel: "FREE",
     source: "PairDrop",
     sourceUrl: "https://pairdrop.net",
-    illustration: "window",
+    illustration: "transfer",
     machineCopy:
       "AirDrop for whoever is not in the Apple family. Open a tab, drop a file, leave.",
     status: "test",
@@ -1461,7 +1461,7 @@ export const products: Product[] = [
     priceLabel: "FREE",
     source: "PDF24",
     sourceUrl: "https://tools.pdf24.org",
-    illustration: "window",
+    illustration: "document",
     machineCopy:
       "Merge, split, compress, and convert PDFs in the browser. The toolbox you open instead of installing another suite.",
     status: "test",
@@ -1480,7 +1480,7 @@ export const products: Product[] = [
     priceLabel: "FREE",
     source: "nullschool",
     sourceUrl: "https://earth.nullschool.net",
-    illustration: "spark",
+    illustration: "globe",
     machineCopy:
       "A living globe of wind, weather, and currents. The most beautiful way to check whether to leave the house.",
     status: "test",
@@ -1500,7 +1500,7 @@ export const products: Product[] = [
     priceLabel: "FREE",
     source: "Cleanup.pictures",
     sourceUrl: "https://cleanup.pictures",
-    illustration: "window",
+    illustration: "browser",
     machineCopy:
       "Brush out an object from a photo in the browser. The retouch you need once, without opening an editor.",
     status: "test",
@@ -1519,7 +1519,7 @@ export const products: Product[] = [
     priceLabel: "FREE",
     source: "Ninite",
     sourceUrl: "https://ninite.com",
-    illustration: "window",
+    illustration: "browser",
     machineCopy:
       "Check the boxes, download one installer, get a clean Windows machine. Updates without the toolbar era.",
     status: "test",
@@ -1537,7 +1537,7 @@ export const products: Product[] = [
     priceLabel: "$0+",
     source: "Gumroad",
     sourceUrl: "https://seankanedesign.gumroad.com/l/sk-modernist",
-    illustration: "pen",
+    illustration: "type",
     machineCopy:
       "A geometric sans with a pay-what-you-want listing. Type you can actually put on a thing.",
     status: "test",
