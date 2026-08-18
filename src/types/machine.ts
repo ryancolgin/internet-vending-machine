@@ -2,7 +2,7 @@ import type { SlotCode } from "./product"
 
 export type HaulItem = {
   productId: string
-  slotCode: SlotCode
+  slotCode?: SlotCode
   vendedAt: string
 }
 

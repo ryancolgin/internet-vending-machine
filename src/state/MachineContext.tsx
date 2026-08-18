@@ -26,6 +26,8 @@ import type { ProductMetrics, SlotCode } from "../types/product"
 
 type Reactions = Record<string, { keep?: boolean; own?: boolean }>
 
+type InspectionSource = "slot" | "shared" | null
+
 export type MachineState = {
   sessionId: string
   restockId: string
@@ -34,6 +36,7 @@ export type MachineState = {
   slots: Record<SlotCode, string>
   selectedSlot: SlotCode | null
   inspectProductId: string | null
+  inspectionSource: InspectionSource
   inspectorOpen: boolean
   haul: HaulItem[]
   seenIds: string[]
@@ -52,6 +55,7 @@ type Action =
   | { type: "HYDRATE"; state: MachineState }
   | { type: "SELECT_SLOT"; slot: SlotCode }
   | { type: "INSPECT_PRODUCT"; productId: string }
+  | { type: "INSPECT_SHARED_PRODUCT"; productId: string }
   | { type: "VEND" }
   | { type: "KEEP"; productId?: string }
   | { type: "OWN"; productId?: string }
@@ -96,6 +100,21 @@ function bumpShown(
   return productIds.reduce((acc, id) => bump(acc, id, "timesShown"), metrics)
 }
 
+function vendTarget(
+  state: MachineState,
+): { productId: string; slotCode?: SlotCode } | null {
+  if (state.inspectionSource === "shared" && state.inspectProductId) {
+    if (!getProduct(state.inspectProductId)) return null
+    return { productId: state.inspectProductId }
+  }
+  if (state.selectedSlot) {
+    const productId = state.slots[state.selectedSlot]
+    if (!productId) return null
+    return { productId, slotCode: state.selectedSlot }
+  }
+  return null
+}
+
 function createInitialState(): MachineState {
   const slots = assignToSlots([...INITIAL_SLOT_PRODUCT_IDS])
   const shown = slotProductIds(slots)
@@ -107,6 +126,7 @@ function createInitialState(): MachineState {
     slots,
     selectedSlot: "B3",
     inspectProductId: slots.B3,
+    inspectionSource: "slot",
     inspectorOpen: false,
     haul: [],
     seenIds: shown,
@@ -147,6 +167,7 @@ function reducer(state: MachineState, action: Action): MachineState {
         ...state,
         selectedSlot: action.slot,
         inspectProductId: productId || null,
+        inspectionSource: "slot",
         inspectorOpen: true,
         notice: null,
         metrics: productId
@@ -161,31 +182,42 @@ function reducer(state: MachineState, action: Action): MachineState {
         ...state,
         inspectProductId: action.productId,
         selectedSlot: slot ?? null,
+        inspectionSource: slot ? "slot" : null,
+        inspectorOpen: true,
+        notice: null,
+      }
+    }
+    case "INSPECT_SHARED_PRODUCT": {
+      if (!getProduct(action.productId)) return state
+      return {
+        ...state,
+        inspectProductId: action.productId,
+        selectedSlot: null,
+        inspectionSource: "shared",
         inspectorOpen: true,
         notice: null,
       }
     }
     case "VEND": {
-      if (!state.selectedSlot) return state
-      const productId = state.slots[state.selectedSlot]
-      if (!productId) return state
-      const already = state.haul.some((item) => item.productId === productId)
+      const target = vendTarget(state)
+      if (!target) return state
+      const already = state.haul.some((item) => item.productId === target.productId)
       const haul = already
         ? state.haul
         : [
             ...state.haul,
             {
-              productId,
-              slotCode: state.selectedSlot,
+              productId: target.productId,
+              ...(target.slotCode ? { slotCode: target.slotCode } : {}),
               vendedAt: new Date().toISOString(),
             },
           ]
       return {
         ...state,
         haul,
-        dispensingId: productId,
+        dispensingId: target.productId,
         haulOpen: false,
-        metrics: bump(state.metrics, productId, "timesVended"),
+        metrics: bump(state.metrics, target.productId, "timesVended"),
         notice: {
           kind: "vend",
           message: already ? "ALREADY IN YOUR HAUL" : "VENDED",
@@ -248,6 +280,7 @@ function reducer(state: MachineState, action: Action): MachineState {
         seenIds: unique([...state.seenIds, ...shown]),
         selectedSlot: "A1",
         inspectProductId: action.slots.A1 || null,
+        inspectionSource: "slot",
         metrics: bumpShown(state.metrics, shown),
         dispensingId: null,
         notice: { kind: "restock", message: "MACHINE RESTOCKED" },
@@ -287,6 +320,7 @@ type MachineContextValue = MachineState & {
   stockedCount: number
   selectSlot: (slot: SlotCode) => void
   inspectProduct: (productId: string) => void
+  inspectSharedProduct: (productId: string) => void
   vend: () => void
   keepStocked: (productId?: string) => void
   alreadyOwn: (productId?: string) => void
@@ -327,6 +361,7 @@ export function MachineProvider({ children }: { children: ReactNode }) {
           inspectProductId: saved.selectedSlot
             ? saved.slots[saved.selectedSlot] || null
             : null,
+          inspectionSource: saved.selectedSlot ? "slot" : null,
         },
       })
     } else {
@@ -377,16 +412,16 @@ export function MachineProvider({ children }: { children: ReactNode }) {
   )
 
   const vend = useCallback(() => {
-    if (!state.selectedSlot) return
-    const productId = state.slots[state.selectedSlot]
+    const target = vendTarget(state)
+    if (!target) return
     dispatch({ type: "VEND" })
     track({
       name: "product_vended",
       restockId: state.restockId,
-      productId,
-      slotCode: state.selectedSlot,
+      productId: target.productId,
+      ...(target.slotCode ? { slotCode: target.slotCode } : {}),
     })
-  }, [state.restockId, state.selectedSlot, state.slots])
+  }, [state])
 
   const keepStocked = useCallback(
     (productId?: string) => {
@@ -442,15 +477,8 @@ export function MachineProvider({ children }: { children: ReactNode }) {
       (state.selectedSlot ? state.slots[state.selectedSlot] : undefined)
     const product = productId ? getProduct(productId) : undefined
     if (!product) return
-    const title = `${product.name} · Internet Vending Machine`
-    const text = `${product.name} · ${product.priceLabel}`
     const url = productShareUrl(product.id)
-    const result = await sharePayload({
-      title,
-      text,
-      url,
-      clipboardText: `${text}\n\n${url}`,
-    })
+    const result = await sharePayload(url)
     if (result === "failed") return
     dispatch({ type: "MARK_SHARED", productId: product.id })
     dispatch({
@@ -470,16 +498,8 @@ export function MachineProvider({ children }: { children: ReactNode }) {
 
   const shareHaul = useCallback(async () => {
     const ids = state.haul.map((item) => item.productId)
-    const count = state.haul.length
-    const title = "Internet Vending Machine · Your Haul"
-    const text = `My Internet Vending Machine haul · ${count} ${count === 1 ? "thing" : "things"}`
     const url = haulShareUrl(ids)
-    const result = await sharePayload({
-      title,
-      text,
-      url,
-      clipboardText: `${text}\n\n${url}`,
-    })
+    const result = await sharePayload(url)
     if (result === "failed") return
     dispatch({
       type: "SET_NOTICE",
@@ -520,6 +540,10 @@ export function MachineProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "INSPECT_PRODUCT", productId })
   }, [])
 
+  const inspectSharedProduct = useCallback((productId: string) => {
+    dispatch({ type: "INSPECT_SHARED_PRODUCT", productId })
+  }, [])
+
   const selectedProduct = state.inspectProductId
     ? getProduct(state.inspectProductId)
     : state.selectedSlot
@@ -539,6 +563,7 @@ export function MachineProvider({ children }: { children: ReactNode }) {
       stockedCount: 16,
       selectSlot,
       inspectProduct,
+      inspectSharedProduct,
       vend,
       keepStocked,
       alreadyOwn,
@@ -572,6 +597,7 @@ export function MachineProvider({ children }: { children: ReactNode }) {
       newCount,
       openIntro,
       inspectProduct,
+      inspectSharedProduct,
       ready,
       restock,
       selectSlot,

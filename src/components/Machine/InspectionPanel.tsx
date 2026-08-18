@@ -36,12 +36,14 @@ export function InspectorBody({
   compact = false,
   visual = "photo",
 }: InspectorBodyProps) {
-  const { vend, keepStocked, alreadyOwn, shareItem, reactions, notice, shareOpen } =
+  const { vend, keepStocked, alreadyOwn, shareItem, reactions, notice, shareOpen, inspectionSource } =
     useMachine()
   const badge = selectedProduct.badges?.[0]
   const notedKeep = Boolean(reactions[selectedProduct.id]?.keep)
   const notedOwn = Boolean(reactions[selectedProduct.id]?.own)
   const hasPhoto = Boolean(selectedProduct.productImage)
+  const sharedDeepLink = inspectionSource === "shared"
+  const canVend = inMachine || sharedDeepLink
   const inspectorNotice =
     notice && !shareOpen && notice.kind !== "restock" ? notice : null
   const offMachineLabel =
@@ -67,13 +69,15 @@ export function InspectorBody({
           ) : null}
           {inMachine ? (
             statusLine(badge) ? <span>{statusLine(badge)}</span> : null
+          ) : sharedDeepLink ? (
+            <span>SHARED STOCK</span>
           ) : (
             <span>{offMachineLabel}</span>
           )}
         </p>
       </div>
       <div className={`inspection__actions${compact ? " inspection__actions--compact" : ""}`}>
-        <button type="button" className="vend" onClick={vend} disabled={!inMachine}>
+        <button type="button" className="vend" onClick={vend} disabled={!canVend}>
           VEND →
         </button>
         <div className="inspection__secondary">

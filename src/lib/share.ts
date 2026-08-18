@@ -2,19 +2,10 @@ export function machineUrl(): string {
   return `${window.location.origin}/`
 }
 
-export async function sharePayload(payload: {
-  title: string
-  text: string
-  url: string
-  clipboardText: string
-}): Promise<"shared" | "copied" | "failed"> {
+export async function sharePayload(url: string): Promise<"shared" | "copied" | "failed"> {
   try {
     if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
-      await navigator.share({
-        title: payload.title,
-        text: payload.text,
-        url: payload.url,
-      })
+      await navigator.share({ url })
       return "shared"
     }
   } catch (error) {
@@ -24,7 +15,7 @@ export async function sharePayload(payload: {
   }
 
   try {
-    await navigator.clipboard.writeText(payload.clipboardText)
+    await navigator.clipboard.writeText(url)
     return "copied"
   } catch {
     return "failed"

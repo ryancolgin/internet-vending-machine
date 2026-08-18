@@ -8,7 +8,7 @@ import { parseShareHash } from "./lib/share"
 import { useMachine } from "./state/MachineContext"
 
 function HashBridge() {
-  const { setShareOpen, selectSlot, inspectProduct, slots, ready } = useMachine()
+  const { setShareOpen, selectSlot, inspectSharedProduct, slots, ready } = useMachine()
   const consumedHash = useRef<string | null>(null)
 
   useEffect(() => {
@@ -31,13 +31,13 @@ function HashBridge() {
           (code) => slots[code] === parsed.productId,
         )
         if (match) selectSlot(match)
-        else inspectProduct(parsed.productId)
+        else inspectSharedProduct(parsed.productId)
       }
     }
     apply()
     window.addEventListener("hashchange", apply)
     return () => window.removeEventListener("hashchange", apply)
-  }, [inspectProduct, ready, selectSlot, setShareOpen, slots])
+  }, [inspectSharedProduct, ready, selectSlot, setShareOpen, slots])
 
   return null
 }

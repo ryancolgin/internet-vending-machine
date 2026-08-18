@@ -30,7 +30,9 @@ export function HaulDrawer() {
       <div className="panel">
         <h2 id="haul-title">YOUR HAUL · {haul.length}</h2>
         {haul.length === 0 ? (
-          <p>Nothing has dropped yet. Vend something you would actually consider getting.</p>
+          <p className="haul-empty">
+            Nothing has dropped yet. Vend something you would actually consider getting.
+          </p>
         ) : (
           <ul className="haul-list">
             {haul.map((item) => {
@@ -44,7 +46,9 @@ export function HaulDrawer() {
                   <div>
                     <p className="haul-item__name">{product.name}</p>
                     <p className="haul-item__price">
-                      {item.slotCode} · {product.priceLabel}
+                      {item.slotCode
+                        ? `${item.slotCode} · ${product.priceLabel}`
+                        : product.priceLabel}
                     </p>
                     <div className="haul-item__actions">
                       <button

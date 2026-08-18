@@ -889,6 +889,10 @@
   overflow: auto;
 }
 
+.haul-empty {
+  margin-bottom: 20px;
+}
+
 .haul-item {
   display: grid;
   grid-template-columns: 48px 1fr;
