@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { Machine } from "./components/Machine/Machine"
 import { HaulDrawer } from "./components/Haul/HaulDrawer"
 import { HaulShareCard } from "./components/Haul/HaulShareCard"
@@ -9,11 +9,19 @@ import { useMachine } from "./state/MachineContext"
 
 function HashBridge() {
   const { setShareOpen, selectSlot, inspectProduct, slots, ready } = useMachine()
+  const consumedHash = useRef<string | null>(null)
 
   useEffect(() => {
     if (!ready) return
     const apply = () => {
-      const parsed = parseShareHash(window.location.hash)
+      const hash = window.location.hash
+      const parsed = parseShareHash(hash)
+      if (!parsed.productId && !parsed.haulIds?.length) {
+        consumedHash.current = hash
+        return
+      }
+      if (consumedHash.current === hash) return
+      consumedHash.current = hash
       if (parsed.haulIds?.length) {
         setShareOpen(true)
         return

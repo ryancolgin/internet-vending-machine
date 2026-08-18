@@ -442,10 +442,14 @@ export function MachineProvider({ children }: { children: ReactNode }) {
       (state.selectedSlot ? state.slots[state.selectedSlot] : undefined)
     const product = productId ? getProduct(productId) : undefined
     if (!product) return
+    const title = `${product.name} · Internet Vending Machine`
+    const text = `${product.name} · ${product.priceLabel}`
+    const url = productShareUrl(product.id)
     const result = await sharePayload({
-      title: `${product.name} · Internet Vending Machine`,
-      text: `${product.machineCopy}\n${product.priceLabel}`,
-      url: productShareUrl(product.id),
+      title,
+      text,
+      url,
+      clipboardText: `${text}\n\n${url}`,
     })
     if (result === "failed") return
     dispatch({ type: "MARK_SHARED", productId: product.id })
@@ -466,18 +470,15 @@ export function MachineProvider({ children }: { children: ReactNode }) {
 
   const shareHaul = useCallback(async () => {
     const ids = state.haul.map((item) => item.productId)
-    const names = ids
-      .map((id) => getProduct(id)?.name)
-      .filter((name): name is string => Boolean(name))
-    const count = names.length
-    const list = names.map((name) => `• ${name}`).join("\n")
+    const count = state.haul.length
+    const title = "Internet Vending Machine · Your Haul"
+    const text = `My Internet Vending Machine haul · ${count} ${count === 1 ? "thing" : "things"}`
+    const url = haulShareUrl(ids)
     const result = await sharePayload({
-      title: "Internet Vending Machine",
-      text:
-        count === 0
-          ? "A haul from the Internet Vending Machine."
-          : `${count} thing${count === 1 ? "" : "s"} from the machine:\n${list}`,
-      url: haulShareUrl(ids),
+      title,
+      text,
+      url,
+      clipboardText: `${text}\n\n${url}`,
     })
     if (result === "failed") return
     dispatch({

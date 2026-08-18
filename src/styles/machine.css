@@ -729,18 +729,19 @@
 
 .utility {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
-  gap: 4px 8px;
-  padding: 4px 4px 8px;
+  gap: 8px 16px;
+  padding: 2px 4px 6px;
   border-top: 1px solid var(--ink-line);
 }
 
 .utility__actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 4px 8px;
 }
 
 .utility button,
@@ -759,6 +760,9 @@
 
 .service-plate {
   margin-left: auto;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
 }
 
 .haul-drawer,
@@ -807,6 +811,26 @@
 
 .intro__credit a:hover {
   color: var(--ink-muted);
+}
+
+.intro__inline {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  min-height: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 700;
+  letter-spacing: inherit;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.intro__inline:hover {
+  color: var(--ink);
 }
 
 .suggest-form {
@@ -979,6 +1003,7 @@
   display: block;
   width: 100%;
   max-width: 100%;
+  pointer-events: none;
 }
 
 .inspector-sheet__panel {
@@ -991,6 +1016,7 @@
   padding: 6px 0 0;
   max-height: min(82svh, calc(100svh - 8px));
   overflow: auto;
+  pointer-events: auto;
 }
 
 .inspector-sheet__handle {
@@ -1402,15 +1428,35 @@
   }
 }
 
-@media (max-width: 420px) {
-  .machine-header__status {
-    gap: 8px 12px;
+@media (max-width: 839px) {
+  .utility {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    justify-content: stretch;
+    gap: 0 8px;
+    padding: 4px 0 8px;
+  }
+
+  .utility__actions {
+    display: contents;
+  }
+
+  .utility button {
+    justify-self: start;
   }
 
   .service-plate {
+    grid-column: 1 / -1;
     margin-left: 0;
-    width: 100%;
+    width: auto;
     padding-left: 8px;
+  }
+}
+
+@media (max-width: 420px) {
+  .machine-header__status {
+    gap: 8px 12px;
   }
 
   .inspector--sheet .restock-row {
