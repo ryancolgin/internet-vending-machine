@@ -9,6 +9,8 @@ import "./styles/reset.css"
 import "./styles/app.css"
 import "./styles/machine.css"
 import "./styles/results.css"
+import { inject } from "@vercel/analytics"
+inject()
 
 function Root() {
   const path = window.location.pathname.replace(/\/+$/, "") || "/"
