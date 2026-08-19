@@ -1,16 +1,22 @@
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
+
 import App from "./App.tsx"
 import { TestResults } from "./pages/TestResults.tsx"
 import { MachineProvider } from "./state/MachineContext.tsx"
 import { isTestResultsEnabled } from "./lib/env.ts"
+
 import "./styles/tokens.css"
 import "./styles/reset.css"
 import "./styles/app.css"
 import "./styles/machine.css"
 import "./styles/results.css"
+
 import { inject } from "@vercel/analytics"
+import { injectSpeedInsights } from "@vercel/speed-insights"
+
 inject()
+injectSpeedInsights()
 
 function Root() {
   const path = window.location.pathname.replace(/\/+$/, "") || "/"
