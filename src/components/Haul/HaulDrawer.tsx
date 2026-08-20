@@ -1,5 +1,6 @@
 import { getProduct } from "../../data/products"
 import { ProductFigure, type ProductVisual } from "../ProductFigure"
+import { ProductOutboundLink } from "../ProductOutboundLink"
 import { useMachine } from "../../state/MachineContext"
 
 const HAUL_VISUAL: ProductVisual = "illustration"
@@ -14,6 +15,7 @@ export function HaulDrawer() {
     keepStocked,
     alreadyOwn,
     reactions,
+    restockId,
   } = useMachine()
 
   if (!haulOpen) return null
@@ -51,6 +53,13 @@ export function HaulDrawer() {
                         : product.priceLabel}
                     </p>
                     <div className="haul-item__actions">
+                      <ProductOutboundLink
+                        product={product}
+                        from="haul"
+                        restockId={restockId}
+                        slotCode={item.slotCode}
+                        className="ghost haul-item__outbound"
+                      />
                       <button
                         type="button"
                         className={`ghost${notedKeep ? " ghost--on" : ""}`}

@@ -18,6 +18,7 @@ export function useMediaQuery(query: string): boolean {
 }
 
 export const MOBILE_MACHINE_QUERY = "(max-width: 839px)"
+export const COARSE_POINTER_QUERY = "(pointer: coarse)"
 
 /**
  * Overlay band: from the end of mobile up to just below the viewport

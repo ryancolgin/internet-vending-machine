@@ -24,6 +24,15 @@ export type ProductMetrics = {
   shares: number
 }
 
+export type ProductImageFit = "contain" | "cover"
+
+export type ProductImage = {
+  src: string
+  fit?: ProductImageFit
+}
+
+export type ProductImageEntry = string | ProductImage
+
 export type Product = {
   id: string
   name: string
@@ -42,6 +51,7 @@ export type Product = {
   sourceUrl?: string
   illustration: string
   productImage?: string
+  productImages?: ProductImageEntry[]
 
   machineCopy: string
   stockReason?: string

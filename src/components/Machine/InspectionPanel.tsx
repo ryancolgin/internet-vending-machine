@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState, type PointerEvent } from "react"
-import { ProductFigure, type ProductVisual } from "../ProductFigure"
+import { type ProductVisual } from "../ProductFigure"
+import { InspectionGallery } from "./InspectionGallery"
+import { ProductOutboundLink } from "../ProductOutboundLink"
 import { DispenseTray } from "./DispenseTray"
 import { RestockControl } from "./RestockControl"
 import {
+  COARSE_POINTER_QUERY,
   MOBILE_MACHINE_QUERY,
   TABLET_MACHINE_QUERY,
   useMediaQuery,
@@ -10,15 +13,23 @@ import {
 import { useMachine } from "../../state/MachineContext"
 import { NEXT_RESTOCK_LABEL } from "../../types/machine"
 import { slotForProduct } from "../../lib/slots"
-import type { Product, ProductBadge, SlotCode } from "../../types/product"
+import { BADGE_LABEL, type Product, type ProductBadge, type SlotCode } from "../../types/product"
 
 function statusLine(badge?: ProductBadge): string | null {
-  if (badge === "leaving") return `LEAVES · ${NEXT_RESTOCK_LABEL}`
-  if (badge === "house-stock") return "HOUSE STOCK"
-  if (badge === "back-in-machine") return "BACK IN THE MACHINE"
-  if (badge === "wildcard") return "WILDCARD"
-  if (badge === "new") return "NEW"
-  return null
+  if (!badge) return null
+  if (badge === "leaving") return `${BADGE_LABEL.leaving} · ${NEXT_RESTOCK_LABEL}`
+  return BADGE_LABEL[badge]
+}
+
+function productMachineStatus(
+  product: Product,
+  inMachine: boolean,
+  sharedDeepLink: boolean,
+): string | null {
+  if (inMachine) return statusLine(product.badges?.[0])
+  if (sharedDeepLink) return "SHARED STOCK"
+  if (product.status === "retired" || product.status === "archived") return "PAST STOCK"
+  return "NOT CURRENTLY STOCKED"
 }
 
 type InspectorBodyProps = {
@@ -36,45 +47,36 @@ export function InspectorBody({
   compact = false,
   visual = "photo",
 }: InspectorBodyProps) {
-  const { vend, keepStocked, alreadyOwn, shareItem, reactions, notice, shareOpen, inspectionSource } =
+  const { vend, keepStocked, alreadyOwn, shareItem, reactions, notice, shareOpen, inspectionSource, restockId } =
     useMachine()
-  const badge = selectedProduct.badges?.[0]
   const notedKeep = Boolean(reactions[selectedProduct.id]?.keep)
   const notedOwn = Boolean(reactions[selectedProduct.id]?.own)
-  const hasPhoto = Boolean(selectedProduct.productImage)
   const sharedDeepLink = inspectionSource === "shared"
   const canVend = inMachine || sharedDeepLink
   const inspectorNotice =
     notice && !shareOpen && notice.kind !== "restock" ? notice : null
-  const offMachineLabel =
-    selectedProduct.status === "retired" || selectedProduct.status === "archived"
-      ? "PAST STOCK"
-      : "NOT CURRENTLY STOCKED"
+  const originLabel = selectedProduct.source || selectedProduct.brand
 
   return (
-    <div className="inspector__select">
-      <div
-        className={`inspection__stage${hasPhoto ? " inspection__stage--photo" : ""}`}
-      >
-        <ProductFigure product={selectedProduct} visual={visual} />
-      </div>
-      <div className="inspection__body" key={selectedProduct.id}>
+    <div className="inspector__select" key={selectedProduct.id}>
+      <InspectionGallery product={selectedProduct} visual={visual} />
+      <div className="inspection__body">
         <p className="inspection__code">{inMachine && selectedSlot ? selectedSlot : "—"}</p>
         <h2 className="inspection__name">{selectedProduct.name.toUpperCase()}</h2>
         <p className="inspection__price">{selectedProduct.priceLabel}</p>
         <p className="inspection__copy">{selectedProduct.machineCopy}</p>
-        <p className="inspection__meta">
-          {selectedProduct.source ? (
-            <span>SOURCE · {selectedProduct.source.toUpperCase()}</span>
-          ) : null}
-          {inMachine ? (
-            statusLine(badge) ? <span>{statusLine(badge)}</span> : null
-          ) : sharedDeepLink ? (
-            <span>SHARED STOCK</span>
-          ) : (
-            <span>{offMachineLabel}</span>
-          )}
-        </p>
+        {originLabel || selectedProduct.sourceUrl ? (
+          <p className="inspection__meta">
+            {originLabel ? <span>{originLabel.toUpperCase()}</span> : null}
+            <ProductOutboundLink
+              product={selectedProduct}
+              from="inspector"
+              restockId={restockId}
+              slotCode={inMachine && selectedSlot ? selectedSlot : undefined}
+              className="inspection__outbound"
+            />
+          </p>
+        ) : null}
       </div>
       <div className={`inspection__actions${compact ? " inspection__actions--compact" : ""}`}>
         <button type="button" className="vend" onClick={vend} disabled={!canVend}>
@@ -119,15 +121,22 @@ const SHEET_RESTING_DVH = 55
 const SHEET_EXPANDED_DVH = 80
 
 export function InspectionPanel() {
-  const { selectedSlot, selectedProduct, inspectorOpen, setInspectorOpen, slots } =
+  const { selectedSlot, selectedProduct, inspectorOpen, setInspectorOpen, slots, inspectionSource } =
     useMachine()
   const isMobile = useMediaQuery(MOBILE_MACHINE_QUERY)
   const isTablet = useMediaQuery(TABLET_MACHINE_QUERY)
+  const isCoarsePointer = useMediaQuery(COARSE_POINTER_QUERY)
   const overlayLayout = isMobile || isTablet
   const inMachine = Boolean(
     selectedProduct && slotForProduct(slots, selectedProduct.id),
   )
-  const [expanded, setExpanded] = useState(true)
+  const statusLabel = selectedProduct
+    ? productMachineStatus(selectedProduct, inMachine, inspectionSource === "shared")
+    : null
+  const [expanded, setExpanded] = useState(() => {
+    if (typeof window === "undefined") return true
+    return window.matchMedia(COARSE_POINTER_QUERY).matches
+  })
   const [dragY, setDragY] = useState(0)
   const [dragging, setDragging] = useState(false)
   const drag = useRef<SheetDrag | null>(null)
@@ -135,12 +144,12 @@ export function InspectionPanel() {
 
   useEffect(() => {
     if (!inspectorOpen) {
-      setExpanded(true)
+      setExpanded(isCoarsePointer)
       setDragY(0)
       setDragging(false)
       drag.current = null
     }
-  }, [inspectorOpen])
+  }, [inspectorOpen, isCoarsePointer])
 
   const closeSheet = () => setInspectorOpen(false)
   const snapHeight = expanded ? SHEET_EXPANDED_DVH : SHEET_RESTING_DVH
@@ -265,6 +274,9 @@ export function InspectionPanel() {
               id="inspection"
             >
               <div className="inspector__card">
+                {statusLabel ? (
+                  <p className="inspector__status inspector__status--card">{statusLabel}</p>
+                ) : null}
                 <InspectorBody
                   selectedSlot={selectedSlot}
                   selectedProduct={selectedProduct}
@@ -307,7 +319,10 @@ export function InspectionPanel() {
   return (
     <aside className="inspector inspector--rail" aria-live="polite" id="inspection">
       <div className="inspector__card">
-        <p className="inspector__plate">SELECTED</p>
+        <div className="inspector__header">
+          <p className="inspector__plate">SELECTED</p>
+          {statusLabel ? <p className="inspector__status">{statusLabel}</p> : null}
+        </div>
         <InspectorBody
           selectedSlot={selectedSlot}
           selectedProduct={selectedProduct}

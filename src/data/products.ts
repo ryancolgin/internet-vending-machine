@@ -1,7 +1,9 @@
 import type { Product } from "../types/product"
 
 // illustration: key from src/illustrations/keys.ts
-// productImage: optional photo path/URL used only in the selected-product inspector
+// productImage: optional single photo path/URL (legacy inspector gallery frame)
+// productImages: optional photos; inspector shows the IVM icon as frame 1, then these
+//   string | { src, fit?: "contain" | "cover" }  — default fit is contain
 
 const emptyMetrics = {
   timesShown: 0,
@@ -26,6 +28,10 @@ export const products: Product[] = [
     source: "HOTO",
     sourceUrl: "https://hototechnology.com",
     illustration: "driver",
+    productImages: [
+      { src: "/products/hoto-24in1-pack.png", fit: "contain" },
+      { src: "/products/hoto-24in1-use.jpg", fit: "cover" },
+    ],
     machineCopy:
       "The drawer-side driver for glasses, laptops, and the toy that lost a screw. Twenty-four bits, one aluminum body.",
     stockReason: "The most requested everyday repair tool.",
@@ -134,6 +140,7 @@ export const products: Product[] = [
     source: "Singer",
     sourceUrl: "https://www.singer.com",
     illustration: "sewing-kit",
+    productImages: [{ src: "/products/singer-mini.webp", fit: "contain" }],
     machineCopy:
       "95 tiny things for fixing the thing that just ripped. A small repair kit worth having before you need it.",
     stockReason: "Travel and home emergency staple.",
@@ -155,6 +162,10 @@ export const products: Product[] = [
     source: "Field Notes",
     sourceUrl: "https://fieldnotesbrand.com",
     illustration: "notebook",
+    productImages: [
+      { src: "/products/field-notes-original-detail.webp", fit: "contain" },
+      { src: "/products/field-notes-original-detail.jpg", fit: "cover" },
+    ],
     machineCopy:
       "Three memo books. Graph or ruled. The pocket notebook that made pocket notebooks feel like tools again.",
     stockReason: "Always in the machine.",
@@ -177,6 +188,7 @@ export const products: Product[] = [
     source: "Olight",
     sourceUrl: "https://olight.com",
     illustration: "flashlight",
+    productImage: "/products/olight-i3e-1.svg",
     machineCopy:
       "A AAA keychain light that is brighter than it has any right to be. Twist the head. See under the couch.",
     status: "active",
@@ -298,6 +310,11 @@ export const products: Product[] = [
     source: "Uni",
     sourceUrl: "https://www.uniball.com",
     illustration: "pencil",
+    productImages: [
+      "/products/kuru-toga-1.svg",
+      "/products/kuru-toga-2.svg",
+      "/products/kuru-toga-3.svg",
+    ],
     machineCopy:
       "The mechanical pencil that rotates as you write so the point stays a point. A small engineering flex.",
     status: "active",
@@ -1052,6 +1069,7 @@ export const products: Product[] = [
     source: "REI",
     sourceUrl: "https://www.rei.com/product/143876/noso-patchdazzle-gear-repair-kit",
     illustration: "patch",
+    productImages: ["/products/noso-patchdazzle-1.svg"],
     machineCopy:
       "Peel-and-stick patches for the jacket that is not ready to retire. Repair as decoration, if you want it that way.",
     status: "test",
@@ -1543,6 +1561,27 @@ export const products: Product[] = [
     status: "test",
     badges: ["wildcard"],
     addedDate: "2026-08-17",
+    metrics: { ...emptyMetrics },
+  },
+  {
+    id: "horizon",
+    name: "Horizon",
+    brand: "Atlas",
+    shortName: "Horizon",
+    type: "software",
+    category: "web",
+    tags: ["browser", "new-tab", "utility"],
+    price: 0,
+    priceLabel: "FREE",
+    source: "Atlas",
+    sourceUrl: "https://horizon-tab.vercel.app/",
+    illustration: "browser",
+    productImages: [{ src: "/products/horizon-ivm.png", fit: "cover" }],
+    machineCopy:
+      "A focused browser home/new-tab console for time, weather, daylight, todos, and quick links.",
+    status: "house-stock",
+    badges: ["house-stock"],
+    addedDate: "2026-08-19",
     metrics: { ...emptyMetrics },
   },
 ]

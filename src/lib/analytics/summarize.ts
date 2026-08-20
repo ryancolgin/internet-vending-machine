@@ -105,6 +105,8 @@ export function summarizeEvents(events: AnalyticsEvent[]): {
       case "follow_restocks_opened":
       case "haul_opened":
       case "haul_card_viewed":
+      case "product_link_opened":
+      case "haul_product_link_opened":
         break
     }
   }
