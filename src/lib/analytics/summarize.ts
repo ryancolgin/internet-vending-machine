@@ -107,6 +107,7 @@ export function summarizeEvents(events: AnalyticsEvent[]): {
       case "haul_card_viewed":
       case "product_link_opened":
       case "haul_product_link_opened":
+      case "product_gallery_navigated":
         break
     }
   }

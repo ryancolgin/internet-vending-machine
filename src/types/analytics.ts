@@ -17,6 +17,7 @@ export type AnalyticsEventName =
   | "haul_card_viewed"
   | "product_link_opened"
   | "haul_product_link_opened"
+  | "product_gallery_navigated"
 
 export type AnalyticsEvent = {
   name: AnalyticsEventName

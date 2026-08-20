@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef, useState, type KeyboardEvent, type UIEvent } from "react"
+import { track as trackEvent } from "../../lib/analytics"
 import { productGalleryPhotos } from "../../lib/productGallery"
 import type { Product } from "../../types/product"
 import { ProductFigure, type ProductVisual } from "../ProductFigure"
@@ -26,26 +27,58 @@ export function InspectionGallery({
   const frameCount = 1 + photos.length
   const [index, setIndex] = useState(0)
   const trackRef = useRef<HTMLDivElement>(null)
+  const reportedIndexRef = useRef(0)
+  const programmaticRef = useRef(false)
+  const ignoreScrollRef = useRef(false)
+  const settleTimerRef = useRef(0)
 
   useLayoutEffect(() => {
-    const track = trackRef.current
-    if (!track) return
-    track.scrollLeft = 0
+    const trackEl = trackRef.current
+    reportedIndexRef.current = 0
+    programmaticRef.current = false
+    if (!trackEl) return
+    trackEl.scrollLeft = 0
     setIndex(0)
   }, [product.id])
 
   useLayoutEffect(() => {
-    const track = trackRef.current
-    if (!track) return
+    const trackEl = trackRef.current
+    if (!trackEl) return
     const snapToCurrent = () => {
-      const slide = track.children[frameIndexFromScroll(track)] as HTMLElement | undefined
+      const slide = trackEl.children[frameIndexFromScroll(trackEl)] as HTMLElement | undefined
       if (!slide) return
-      track.scrollLeft = slide.offsetLeft
+      ignoreScrollRef.current = true
+      trackEl.scrollLeft = slide.offsetLeft
+      ignoreScrollRef.current = false
     }
     const observer = new ResizeObserver(snapToCurrent)
-    observer.observe(track)
+    observer.observe(trackEl)
     return () => observer.disconnect()
   }, [product.id])
+
+  useLayoutEffect(() => {
+    return () => window.clearTimeout(settleTimerRef.current)
+  }, [product.id])
+
+  const reportFrame = (next: number) => {
+    if (next === reportedIndexRef.current) return
+    reportedIndexRef.current = next
+    trackEvent({
+      name: "product_gallery_navigated",
+      productId: product.id,
+    })
+  }
+
+  const markProgrammatic = () => {
+    programmaticRef.current = true
+    window.clearTimeout(settleTimerRef.current)
+    const trackEl = trackRef.current
+    const settle = () => {
+      programmaticRef.current = false
+    }
+    trackEl?.addEventListener("scrollend", settle, { once: true })
+    settleTimerRef.current = window.setTimeout(settle, 450)
+  }
 
   if (photos.length === 0) {
     return (
@@ -56,20 +89,25 @@ export function InspectionGallery({
   }
 
   const goTo = (next: number) => {
-    const track = trackRef.current
-    if (!track) return
+    const trackEl = trackRef.current
+    if (!trackEl) return
     const clamped = Math.max(0, Math.min(frameCount - 1, next))
-    const slide = track.children[clamped] as HTMLElement | undefined
+    const slide = trackEl.children[clamped] as HTMLElement | undefined
     if (!slide) return
-    track.scrollTo({
+    if (clamped !== reportedIndexRef.current) markProgrammatic()
+    trackEl.scrollTo({
       left: slide.offsetLeft,
       behavior: prefersReducedMotion() ? "auto" : "smooth",
     })
     setIndex(clamped)
+    reportFrame(clamped)
   }
 
   const onScroll = (event: UIEvent<HTMLDivElement>) => {
-    setIndex(frameIndexFromScroll(event.currentTarget))
+    const next = frameIndexFromScroll(event.currentTarget)
+    setIndex(next)
+    if (ignoreScrollRef.current || programmaticRef.current) return
+    reportFrame(next)
   }
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
