@@ -1584,6 +1584,31 @@ export const products: Product[] = [
     addedDate: "2026-08-19",
     metrics: { ...emptyMetrics },
   },
+  {
+    id: "chef-iq-sense",
+    name: "iQ Sense®",
+    brand: "CHEF iQ",
+    shortName: "iQ Sense",
+    type: "physical",
+    category: "home",
+    tags: ["cooking", "kitchen", "thermometer", "smart-home"],
+    price: 99.99,
+    priceLabel: "$99.99",
+    source: "CHEF iQ",
+    sourceUrl: "https://chefiq.pxf.io/rE1aJG",
+    illustration: "timer",
+    productImages: [
+      { src: "/products/chef-iq-sense-case.webp", fit: "contain" },
+      { src: "/products/chef-iq-sense-salmon.webp", fit: "cover" },
+      { src: "/products/chef-iq-sense.webp", fit: "contain" },
+    ],
+    machineCopy:
+      "Smart wireless meat thermometer for monitoring cooks from your phone across the grill, oven, smoker, air fryer, and more.",
+    status: "active",
+    badges: ["new"],
+    addedDate: "2026-08-20",
+    metrics: { ...emptyMetrics },
+  },
 ]
 
 export const productById = new Map(products.map((product) => [product.id, product]))
