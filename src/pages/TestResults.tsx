@@ -11,6 +11,19 @@ export function TestResults() {
   const [status, setStatus] = useState("Loading…")
 
   useEffect(() => {
+    const previousTitle = document.title
+    document.title = "Test results"
+    const robots = document.createElement("meta")
+    robots.setAttribute("name", "robots")
+    robots.setAttribute("content", "noindex, nofollow")
+    document.head.appendChild(robots)
+    return () => {
+      document.title = previousTitle
+      robots.remove()
+    }
+  }, [])
+
+  useEffect(() => {
     let cancelled = false
 
     async function load() {

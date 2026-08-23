@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /test-results
+
+Sitemap: https://theinternetvendingmachine.com/sitemap.xml
