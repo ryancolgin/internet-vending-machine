@@ -26,7 +26,7 @@ export const products: Product[] = [
     price: 19.99,
     priceLabel: "$19.99",
     source: "HOTO",
-    sourceUrl: "https://hototechnology.com",
+    sourceUrl: "https://hototools.com/products/24in1-precision-screwdriver",
     illustration: "driver",
     productImages: [
       { src: "/products/hoto-24in1-pack.png", fit: "contain" },
@@ -52,7 +52,7 @@ export const products: Product[] = [
     price: 12.95,
     priceLabel: "$12.95",
     source: "Sequoia Publishing",
-    sourceUrl: "https://www.sequoiapublishing.com",
+    sourceUrl: "https://sequoiapublishing.com/product/pocket-ref/",
     illustration: "book",
     machineCopy:
       "A dense little brick of useful facts. Hardware, formulas, first aid, and the conversion you never remember.",
@@ -160,7 +160,7 @@ export const products: Product[] = [
     price: 12.95,
     priceLabel: "$12.95",
     source: "Field Notes",
-    sourceUrl: "https://fieldnotesbrand.com",
+    sourceUrl: "https://fieldnotesbrand.com/products/original-kraft",
     illustration: "notebook",
     productImages: [
       { src: "/products/field-notes-original-detail.webp", fit: "contain" },
@@ -185,7 +185,7 @@ export const products: Product[] = [
     price: 9.95,
     priceLabel: "$9.95",
     source: "Olight",
-    sourceUrl: "https://olight.com",
+    sourceUrl: "https://www.olight.com/store/i3e-eos",
     illustration: "flashlight",
     productImage: "/products/olight-i3e-1.svg",
     machineCopy:
@@ -267,7 +267,7 @@ export const products: Product[] = [
     price: 8.9,
     priceLabel: "$8.90",
     source: "MUJI",
-    sourceUrl: "https://www.muji.com",
+    sourceUrl: "https://www.muji.us/products/portable-scissors-9s65",
     illustration: "scissors",
     machineCopy:
       "Covered blades, pocketable, no branding shouting at you. The scissors you can throw in a bag.",
@@ -352,7 +352,7 @@ export const products: Product[] = [
     price: 12.0,
     priceLabel: "$12.00",
     source: "Midori",
-    sourceUrl: "https://www.midori-japan.co.jp",
+    sourceUrl: "https://md-product.com/en/products/md-notebook-a6",
     illustration: "notebook",
     machineCopy:
       "Cream paper, a cotton cover, and no agenda. Midori’s argument that a notebook should disappear under ink.",
@@ -392,7 +392,7 @@ export const products: Product[] = [
     price: 7.0,
     priceLabel: "$7.00",
     source: "Gerber",
-    sourceUrl: "https://www.gerbergear.com",
+    sourceUrl: "https://gerbergear.com/products/shard-22-01769n",
     illustration: "shard",
     machineCopy:
       "A keychain pry bar, bottle opener, and screwdriver that TSA generally ignores. Seven tools, no blade.",
@@ -412,7 +412,7 @@ export const products: Product[] = [
     price: 1.85,
     priceLabel: "$1.85",
     source: "Marvy Uchida",
-    sourceUrl: "https://www.uchida.com",
+    sourceUrl: "https://uchida.com/products/le-pen",
     illustration: "pen",
     machineCopy:
       "A needle-point felt pen people get quietly evangelical about. Buy one, then a handful.",
@@ -513,7 +513,7 @@ export const products: Product[] = [
     price: 19.99,
     priceLabel: "$19.99",
     source: "Anker",
-    sourceUrl: "https://www.anker.com",
+    sourceUrl: "https://www.anker.com/products/a2147",
     illustration: "charger",
     machineCopy:
       "A 30W GaN brick the size of a fold of paper. One charger that can replace the ugly one in your bag.",
@@ -573,7 +573,7 @@ export const products: Product[] = [
     price: 8.5,
     priceLabel: "$8.50",
     source: "Hightide",
-    sourceUrl: "https://hightide-jp.com",
+    sourceUrl: "https://www.hightide.co.jp/c/category/stationery/tape/item-dp114",
     illustration: "tape",
     machineCopy:
       "A handheld label tape writer. Emboss a name, a drawer, a warning. Satisfying in a 1974 way.",
@@ -594,7 +594,7 @@ export const products: Product[] = [
     price: 28.0,
     priceLabel: "$28.00",
     source: "Blackwing",
-    sourceUrl: "https://blackwing602.com",
+    sourceUrl: "https://blackwing602.com/products/blackwing-602-set-of-12",
     illustration: "pencil",
     machineCopy:
       "A dozen firm, smooth pencils with a replaceable eraser. The 602 is the one people mean when they say Blackwing.",
