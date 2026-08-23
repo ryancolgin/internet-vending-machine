@@ -608,7 +608,10 @@ export function MachineProvider({ children }: { children: ReactNode }) {
       setModal: (modal: ModalId | null) => {
         if (modal === "suggest") track({ name: "suggest_opened" })
         if (modal === "stock") track({ name: "stock_product_opened" })
-        if (modal === "follow") track({ name: "follow_restocks_opened" })
+        if (modal === "follow") {
+          track({ name: "follow_restocks_opened" })
+          track({ name: "restock_signup_opened" })
+        }
         dispatch({ type: "SET_MODAL", modal })
       },
       setInspectorOpen: (open: boolean) =>

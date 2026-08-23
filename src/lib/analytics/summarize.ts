@@ -103,6 +103,10 @@ export function summarizeEvents(events: AnalyticsEvent[]): {
       case "suggest_opened":
       case "stock_product_opened":
       case "follow_restocks_opened":
+      case "restock_signup_opened":
+      case "restock_signup_submitted":
+      case "restock_signup_succeeded":
+      case "restock_signup_failed":
       case "haul_opened":
       case "haul_card_viewed":
       case "product_link_opened":

@@ -15,7 +15,12 @@ export function UtilityBar() {
     <div className="utility">
       <div className="utility__actions">
         {actions.map((action) => (
-          <button key={action.id} type="button" onClick={() => setModal(action.id)}>
+          <button
+            key={action.id}
+            id={action.id === "follow" ? "utility-follow" : undefined}
+            type="button"
+            onClick={() => setModal(action.id)}
+          >
             {action.label}
           </button>
         ))}

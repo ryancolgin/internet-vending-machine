@@ -1,8 +1,8 @@
-import { useState, type FormEvent } from "react"
+import { useEffect, useRef, useState, type FormEvent } from "react"
 import { getSessionId } from "../../lib/session"
 import { normalizeSuggestionUrl, sendProductSuggestion } from "../../lib/suggestions"
 import { useMachine } from "../../state/MachineContext"
-import { NEXT_RESTOCK_LABEL } from "../../types/machine"
+import { RestockSignupForm } from "./RestockSignupForm"
 
 function SuggestForm() {
   const [name, setName] = useState("")
@@ -101,6 +101,35 @@ function SuggestForm() {
 
 export function InfoModal() {
   const { modal, setModal, restockLog, restockCount } = useMachine()
+  const panelRef = useRef<HTMLDivElement>(null)
+  const openerRef = useRef<HTMLElement | null>(null)
+
+  useEffect(() => {
+    if (!modal) return
+
+    const active = document.activeElement
+    openerRef.current = active instanceof HTMLElement ? active : null
+
+    const frame = window.requestAnimationFrame(() => {
+      const root = panelRef.current
+      if (!root) return
+      if (modal === "follow") return
+      root.querySelector<HTMLElement>("#modal-title")?.focus()
+    })
+
+    return () => {
+      window.cancelAnimationFrame(frame)
+      const opener = openerRef.current
+      if (opener?.isConnected) {
+        opener.focus()
+        return
+      }
+      if (modal === "follow") {
+        document.getElementById("utility-follow")?.focus()
+      }
+    }
+  }, [modal])
+
   if (!modal) return null
 
   const title = {
@@ -114,21 +143,25 @@ export function InfoModal() {
     <div
       className="modal"
       role="dialog"
+      aria-modal="true"
       aria-labelledby="modal-title"
       onClick={(event) => {
         if (event.target === event.currentTarget) setModal(null)
       }}
     >
-      <div className="panel">
-        <h2 id="modal-title">{title}</h2>
+      <div
+        ref={panelRef}
+        className={`panel${modal === "follow" ? " panel--compact" : ""}`}
+      >
+        <h2 id="modal-title" tabIndex={-1}>
+          {title}
+        </h2>
         <div className="modal__body">
           {modal === "suggest" ? <SuggestForm /> : null}
           {modal === "stock" ? (
             <p>Maker and merchant stocking is not live in this test.</p>
           ) : null}
-          {modal === "follow" ? (
-            <p>Restock notices aren&apos;t wired yet. Next restock: {NEXT_RESTOCK_LABEL}.</p>
-          ) : null}
+          {modal === "follow" ? <RestockSignupForm /> : null}
           {modal === "log" ? (
             restockLog.length === 0 ? (
               <p>No restocks yet. This is still the opening assortment. Restocks: {restockCount}.</p>

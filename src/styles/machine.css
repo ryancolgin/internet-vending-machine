@@ -1045,6 +1045,10 @@ a.ghost {
   padding: 18px;
 }
 
+.panel--compact {
+  width: min(380px, 100%);
+}
+
 .panel p.intro__credit {
   margin-top: 16px;
   font-family: var(--font-mono);
@@ -1115,6 +1119,26 @@ a.ghost {
 .suggest-form textarea {
   resize: vertical;
   min-height: 72px;
+}
+
+.signup-form__support {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--ink-faint);
+}
+
+.signup-success__title {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--ink);
+}
+
+.signup-form .vend:disabled {
+  letter-spacing: 0.16em;
 }
 
 .panel h2 {
