@@ -23,7 +23,15 @@ export function InspectionGallery({
   product,
   visual = "illustration",
 }: InspectionGalleryProps) {
-  const photos = productGalleryPhotos(product)
+  const [failedForId, setFailedForId] = useState(product.id)
+  const [failedSrcs, setFailedSrcs] = useState<string[]>([])
+  if (failedForId !== product.id) {
+    setFailedForId(product.id)
+    setFailedSrcs([])
+  }
+  const photos = productGalleryPhotos(product).filter(
+    (photo) => !failedSrcs.includes(photo.src),
+  )
   const frameCount = 1 + photos.length
   const [index, setIndex] = useState(0)
   const trackRef = useRef<HTMLDivElement>(null)
@@ -36,15 +44,21 @@ export function InspectionGallery({
     const trackEl = trackRef.current
     reportedIndexRef.current = 0
     programmaticRef.current = false
+    setIndex(0)
     if (!trackEl) return
     trackEl.scrollLeft = 0
-    setIndex(0)
   }, [product.id])
+
+  useLayoutEffect(() => {
+    if (index <= frameCount - 1) return
+    setIndex(Math.max(0, frameCount - 1))
+  }, [frameCount, index])
 
   useLayoutEffect(() => {
     const trackEl = trackRef.current
     if (!trackEl) return
     const snapToCurrent = () => {
+      if (programmaticRef.current) return
       const slide = trackEl.children[frameIndexFromScroll(trackEl)] as HTMLElement | undefined
       if (!slide) return
       ignoreScrollRef.current = true
@@ -157,6 +171,11 @@ export function InspectionGallery({
                   src={photo.src}
                   alt={`${product.name}, photo ${photoIndex + 1} of ${photos.length}`}
                   draggable={false}
+                  onError={() => {
+                    setFailedSrcs((current) =>
+                      current.includes(photo.src) ? current : [...current, photo.src],
+                    )
+                  }}
                 />
               </div>
             ))}

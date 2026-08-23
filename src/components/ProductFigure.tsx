@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react"
+import { useEffect, useState, type CSSProperties } from "react"
 import { getIllustration } from "../illustrations/catalog"
 import type { Product } from "../types/product"
 
@@ -17,12 +17,22 @@ export function ProductFigure({
   className = "",
   style,
 }: ProductFigureProps) {
-  const showPhoto = visual === "photo" && Boolean(product.productImage)
+  const [photoFailed, setPhotoFailed] = useState(false)
+
+  useEffect(() => {
+    setPhotoFailed(false)
+  }, [product.productImage])
+
+  const showPhoto = visual === "photo" && Boolean(product.productImage) && !photoFailed
 
   if (showPhoto && product.productImage) {
     return (
       <div className={`product-figure product-figure--photo ${className}`.trim()} style={style}>
-        <img src={product.productImage} alt="" />
+        <img
+          src={product.productImage}
+          alt=""
+          onError={() => setPhotoFailed(true)}
+        />
       </div>
     )
   }

@@ -164,7 +164,6 @@ export const products: Product[] = [
     illustration: "notebook",
     productImages: [
       { src: "/products/field-notes-original-detail.webp", fit: "contain" },
-      { src: "/products/field-notes-original-detail.jpg", fit: "cover" },
     ],
     machineCopy:
       "Three memo books. Graph or ruled. The pocket notebook that made pocket notebooks feel like tools again.",
