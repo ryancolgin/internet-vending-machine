@@ -108,4 +108,13 @@ alter table public.product_suggestions
 alter table public.product_suggestions
   drop column if exists intent;
 
+-- Additive client identity for analytics_events.
+-- Historical rows stay null. Run the matching migration before deploying
+-- a frontend that POSTs client_id.
+alter table public.analytics_events
+  add column if not exists client_id text;
+
+create index if not exists analytics_events_client_idx
+  on public.analytics_events (client_id);
+
 notify pgrst, 'reload schema';

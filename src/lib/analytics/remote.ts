@@ -8,6 +8,7 @@ type RemoteRow = {
   product_id: string | null
   slot_code: string | null
   restock_id: string | null
+  client_id?: string | null
 }
 
 function toRow(event: AnalyticsEvent): RemoteRow {
@@ -18,6 +19,7 @@ function toRow(event: AnalyticsEvent): RemoteRow {
     product_id: event.productId ?? null,
     slot_code: event.slotCode ?? null,
     restock_id: event.restockId ?? null,
+    client_id: event.clientId ?? null,
   }
 }
 
@@ -29,6 +31,7 @@ function fromRow(row: RemoteRow): AnalyticsEvent {
     productId: row.product_id ?? undefined,
     slotCode: row.slot_code ?? undefined,
     restockId: row.restock_id ?? undefined,
+    clientId: row.client_id ?? undefined,
   }
 }
 
@@ -67,6 +70,12 @@ export async function sendAnalyticsEvent(event: AnalyticsEvent): Promise<void> {
 }
 
 export async function fetchRemoteEvents(): Promise<AnalyticsEvent[] | null> {
+  const withClient = await rest<RemoteRow[]>(
+    "analytics_events?select=session_id,event_name,timestamp,product_id,slot_code,restock_id,client_id&order=timestamp.asc",
+    { method: "GET" },
+  )
+  if (withClient) return withClient.map(fromRow)
+
   const rows = await rest<RemoteRow[]>(
     "analytics_events?select=session_id,event_name,timestamp,product_id,slot_code,restock_id&order=timestamp.asc",
     { method: "GET" },

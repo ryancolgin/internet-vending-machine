@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client"
 import App from "./App.tsx"
 import { TestResults } from "./pages/TestResults.tsx"
 import { MachineProvider } from "./state/MachineContext.tsx"
+import { installClientIdHelper } from "./lib/client.ts"
 import { isTestResultsEnabled } from "./lib/env.ts"
 
 import "./styles/tokens.css"
@@ -17,6 +18,7 @@ import { injectSpeedInsights } from "@vercel/speed-insights"
 
 inject()
 injectSpeedInsights()
+installClientIdHelper()
 
 function Root() {
   const path = window.location.pathname.replace(/\/+$/, "") || "/"

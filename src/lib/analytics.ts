@@ -1,6 +1,7 @@
 import type { AnalyticsEvent, AnalyticsEventName } from "../types/analytics"
 import { isRemoteAnalyticsConfigured } from "./env"
 import { sendAnalyticsEvent } from "./analytics/remote"
+import { getClientId } from "./client"
 import { getSessionId } from "./session"
 import { readJson, writeJson } from "./storage"
 
@@ -35,6 +36,7 @@ export function track(input: TrackInput): AnalyticsEvent {
     name: input.name,
     timestamp: new Date().toISOString(),
     sessionId: getSessionId(),
+    clientId: getClientId(),
     restockId: input.restockId,
     productId: input.productId,
     slotCode: input.slotCode,

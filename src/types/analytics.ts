@@ -27,6 +27,7 @@ export type AnalyticsEvent = {
   name: AnalyticsEventName
   timestamp: string
   sessionId: string
+  clientId?: string
   productId?: string
   restockId?: string
   slotCode?: string
