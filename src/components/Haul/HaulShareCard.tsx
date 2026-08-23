@@ -2,7 +2,7 @@ import { getProduct } from "../../data/products"
 import type { Product } from "../../types/product"
 import { ProductFigure, type ProductVisual } from "../ProductFigure"
 import { useMachine } from "../../state/MachineContext"
-import { MACHINE_NUMBER } from "../../types/machine"
+import { MACHINE_NAME, MACHINE_NUMBER } from "../../types/machine"
 
 const HAUL_CARD_VISUAL: ProductVisual = "illustration"
 const HAUL_CARD_CELLS = 16
@@ -37,7 +37,7 @@ export function HaulShareCard() {
     >
       <div className="panel">
         <div className="share-card">
-          <p className="share-card__kicker">INTERNET VENDING MACHINE · № {MACHINE_NUMBER}</p>
+          <p className="share-card__kicker">{MACHINE_NAME} · № {MACHINE_NUMBER}</p>
           <h2 id="share-card-title" className="share-card__title">
             YOUR HAUL
           </h2>

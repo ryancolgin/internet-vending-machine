@@ -1,8 +1,8 @@
-# Internet Vending Machine
+# The Internet Vending Machine
 
 A finite, rotating collection of unusually useful products from around the internet.
 
-> The internet gave us infinite shelves. Internet Vending Machine puts the constraint back.
+> The internet gave us infinite shelves. The Internet Vending Machine puts the constraint back.
 
 This is the **V0 testing prototype**. Vending does not purchase anything. It adds a product to a personal haul so we can learn what people would actually consider getting.
 
@@ -49,7 +49,9 @@ The machine still works if these are missing. Events stay in `localStorage` only
 4. Optionally set `VITE_ENABLE_TEST_RESULTS=true` if you want the private results page on the deployed URL. Leave it unset before sending the public link to friends.
 5. Deploy. SPA routes are rewritten via `vercel.json`.
 
-Do not configure a custom domain yet.
+Public URL: [https://theinternetvendingmachine.com](https://theinternetvendingmachine.com)
+
+`internetvendingmachine.net` and `www.internetvendingmachine.net` redirect there. `https://internet-vending-machine.vercel.app` remains available.
 
 ### Supabase (one-time)
 

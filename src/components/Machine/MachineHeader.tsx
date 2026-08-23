@@ -1,4 +1,4 @@
-import { MACHINE_NUMBER, MACHINE_TAGLINE, NEXT_RESTOCK_LABEL } from "../../types/machine"
+import { MACHINE_NAME, MACHINE_NUMBER, MACHINE_TAGLINE, NEXT_RESTOCK_LABEL } from "../../types/machine"
 import { useMachine } from "../../state/MachineContext"
 
 export function MachineHeader() {
@@ -8,7 +8,7 @@ export function MachineHeader() {
     <header className="machine-header">
       <div className="machine-header__top">
         <div className="machine-header__brand">
-          <h1 className="machine-header__title">INTERNET VENDING MACHINE</h1>
+          <h1 className="machine-header__title">{MACHINE_NAME}</h1>
           <p className="machine-header__tagline">{MACHINE_TAGLINE}</p>
         </div>
         <div className="machine-header__meta">

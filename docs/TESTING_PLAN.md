@@ -1,4 +1,4 @@
-# Testing plan — Internet Vending Machine V0
+# Testing plan — The Internet Vending Machine V0
 
 ## Goal
 

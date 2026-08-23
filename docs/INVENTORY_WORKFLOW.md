@@ -1,4 +1,4 @@
-# Inventory workflow — Internet Vending Machine V0
+# Inventory workflow — The Internet Vending Machine V0
 
 Do not maintain a duplicate inventory list in this file, a spreadsheet, or a Markdown product catalog.
 

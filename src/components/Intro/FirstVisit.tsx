@@ -37,7 +37,7 @@ export function FirstVisit() {
           >
             SUGGEST SOMETHING
           </button>{" "}
-          you think belongs in the Internet Vending Machine.
+          you think belongs in The Internet Vending Machine.
         </p>
         <p>
           <b>Nothing will actually be purchased.</b>
