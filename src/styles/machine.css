@@ -515,6 +515,10 @@
   object-fit: cover;
 }
 
+.inspection-gallery__slide--pos-top img {
+  object-position: center top;
+}
+
 .inspection-gallery__dots {
   position: absolute;
   left: 0;

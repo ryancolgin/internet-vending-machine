@@ -26,9 +26,12 @@ export type ProductMetrics = {
 
 export type ProductImageFit = "contain" | "cover"
 
+export type ProductImagePosition = "center" | "top"
+
 export type ProductImage = {
   src: string
   fit?: ProductImageFit
+  position?: ProductImagePosition
 }
 
 export type ProductImageEntry = string | ProductImage

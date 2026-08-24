@@ -163,7 +163,7 @@ export function InspectionGallery({
               <div
                 className={`inspection-gallery__slide${
                   photo.fit === "cover" ? " inspection-gallery__slide--cover" : ""
-                }`}
+                }${photo.position === "top" ? " inspection-gallery__slide--pos-top" : ""}`}
                 key={photo.src}
                 aria-hidden={index !== photoIndex + 1}
               >

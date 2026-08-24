@@ -3,7 +3,7 @@ import type { Product } from "../types/product"
 // illustration: key from src/illustrations/keys.ts
 // productImage: optional single photo path/URL (legacy inspector gallery frame)
 // productImages: optional photos; inspector shows the IVM icon as frame 1, then these
-//   string | { src, fit?: "contain" | "cover" }  — default fit is contain
+//   string | { src, fit?: "contain" | "cover", position?: "center" | "top" }  — default fit is contain, position is center
 
 const emptyMetrics = {
   timesShown: 0,
@@ -1656,6 +1656,31 @@ export const products: Product[] = [
     status: "active",
     badges: ["new"],
     addedDate: "2026-08-21",
+    metrics: { ...emptyMetrics },
+  },
+  {
+    id: "xteink-reading-light",
+    name: "XTEINK eReader Magnetic Reading Light",
+    brand: "XTEINK",
+    shortName: "Reading Light",
+    type: "physical",
+    category: "light",
+    tags: ["reading", "light", "e-ink", "accessory"],
+    price: 9.99,
+    priceLabel: "$9.99",
+    source: "XTEINK",
+    sourceUrl: "https://go.sjv.io/qWGVPb",
+    illustration: "flashlight",
+    productImages: [
+      { src: "/products/xteink-magnetic-reading-light.webp", fit: "contain" },
+      { src: "/products/xteink-magnetic-reading-light-kit.webp", fit: "contain" },
+      { src: "/products/xteink-magnetic-reading-light-night.webp", fit: "cover", position: "top" },
+    ],
+    machineCopy:
+      "A magnetic reading light for XTEINK eReaders, with a clip for books and notebooks. Three color temperatures, a flexible neck, and a rechargeable battery for late pages.",
+    status: "active",
+    badges: ["new"],
+    addedDate: "2026-08-23",
     metrics: { ...emptyMetrics },
   },
   {
