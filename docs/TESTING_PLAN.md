@@ -20,7 +20,8 @@ This is behavioral prototype testing, not a purchase test. VEND does not buy any
 
 All of these go through the centralized `track()` function in `src/lib/analytics.ts`:
 
-- `product_shown`
+- `machine_opened` — one per page load / machine opening
+- `human_interaction` — first trusted pointer/click/touch/key/scroll in a session
 - `slot_selected`
 - `product_vended`
 - `keep_stocked`
@@ -29,7 +30,11 @@ All of these go through the centralized `track()` function in `src/lib/analytics
 - `share_haul`
 - `restock_triggered`
 
-Each event includes a timestamp, an anonymous session ID, and optional `product_id`, `slot_code`, and `restock_id`.
+`product_shown` is still a valid event name for historic rows. New loads and restocks do not write it; selecting a slot is the product-inspection signal.
+
+Each event includes a timestamp, a session ID, a persistent `client_id`, and optional `product_id`, `slot_code`, and `restock_id`. `machine_opened` also sends `referrer` and `page_path` when present.
+
+`session_id` is one usage period: activity refreshes it, and a new session starts when activity resumes after ~30 minutes idle. `client_id` persists for the browser origin. See [ANALYTICS.md](./ANALYTICS.md).
 
 Events currently persist locally in `localStorage["ivm.v0.events"]` as a backup and debugging log. Machine counters also live in `localStorage["ivm.v0.machine"]`.
 

@@ -15,9 +15,11 @@ export function installClientIdHelper(): void {
   const w = window as Window & { __ivmClientId?: () => string }
   w.__ivmClientId = () => {
     const id = getClientId()
+    const origin = window.location.origin
+    console.info("[ivm] origin", origin)
     console.info("[ivm] client_id", id)
     console.info(
-      `[ivm] map this browser as owner in Supabase:\n\ninsert into public.analytics_clients (client_id, label, actor_type, notes)\nvalues ('${id}', 'Ryan Mac', 'owner', 'Ryan local Mac');\n`,
+      `[ivm] Each origin has its own localStorage (localhost, the custom domain, and *.vercel.app are different).\nRun __ivmClientId() on each browser/domain you test from, then map the exact client_id in Supabase:\n\ninsert into public.analytics_clients (client_id, label, actor_type, notes)\nvalues ('${id}', 'Ryan', 'owner', '${origin}');\n`,
     )
     return id
   }

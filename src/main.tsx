@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client"
 import App from "./App.tsx"
 import { TestResults } from "./pages/TestResults.tsx"
 import { MachineProvider } from "./state/MachineContext.tsx"
+import { startVisitTracking } from "./lib/analytics.ts"
 import { installClientIdHelper } from "./lib/client.ts"
 import { isTestResultsEnabled } from "./lib/env.ts"
 
@@ -20,9 +21,10 @@ inject()
 injectSpeedInsights()
 installClientIdHelper()
 
-function Root() {
-  const path = window.location.pathname.replace(/\/+$/, "") || "/"
+const path = window.location.pathname.replace(/\/+$/, "") || "/"
+if (path !== "/test-results") startVisitTracking()
 
+function Root() {
   if (path === "/test-results") {
     if (!isTestResultsEnabled()) {
       window.location.replace("/")

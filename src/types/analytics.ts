@@ -1,4 +1,6 @@
 export type AnalyticsEventName =
+  | "machine_opened"
+  | "human_interaction"
   | "slot_selected"
   | "product_vended"
   | "keep_stocked"
@@ -31,4 +33,6 @@ export type AnalyticsEvent = {
   productId?: string
   restockId?: string
   slotCode?: string
+  referrer?: string
+  pagePath?: string
 }

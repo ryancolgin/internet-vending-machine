@@ -384,13 +384,6 @@ export function MachineProvider({ children }: { children: ReactNode }) {
     } else {
       const initial = createInitialState()
       dispatch({ type: "HYDRATE", state: initial })
-      for (const id of slotProductIds(initial.slots)) {
-        track({
-          name: "product_shown",
-          restockId: initial.restockId,
-          productId: id,
-        })
-      }
     }
     setReady(true)
   }, [])
@@ -539,13 +532,6 @@ export function MachineProvider({ children }: { children: ReactNode }) {
       name: "restock_triggered",
       restockId: log.id,
     })
-    for (const id of slotProductIds(slots)) {
-      track({
-        name: "product_shown",
-        restockId: log.id,
-        productId: id,
-      })
-    }
   }, [state.seenIds, state.slots])
 
   const openIntro = useCallback(() => {

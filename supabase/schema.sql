@@ -117,4 +117,25 @@ alter table public.analytics_events
 create index if not exists analytics_events_client_idx
   on public.analytics_events (client_id);
 
+alter table public.analytics_events
+  add column if not exists referrer text;
+
+alter table public.analytics_events
+  add column if not exists page_path text;
+
+create table if not exists public.analytics_clients (
+  client_id text primary key,
+  label text not null,
+  actor_type text not null,
+  notes text,
+  created_at timestamptz not null default now(),
+  constraint analytics_clients_actor_type_check
+    check (actor_type in ('owner', 'known-tester'))
+);
+
+revoke all on public.analytics_clients from anon, authenticated, public;
+
+-- Readable visit views live in supabase/migrations/. Run those in date order
+-- after this file on a fresh project.
+
 notify pgrst, 'reload schema';

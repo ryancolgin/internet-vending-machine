@@ -99,6 +99,8 @@ export function summarizeEvents(events: AnalyticsEvent[]): {
           stats.alreadyOwn = Math.max(0, stats.alreadyOwn - 1)
         }
         break
+      case "machine_opened":
+      case "human_interaction":
       case "help_opened":
       case "suggest_opened":
       case "stock_product_opened":
@@ -121,7 +123,12 @@ export function summarizeEvents(events: AnalyticsEvent[]): {
   const products = [...byProduct.values()]
     .map((product) => ({
       ...product,
-      vendRate: product.shown > 0 ? product.vends / product.shown : null,
+      vendRate:
+        product.shown > 0
+          ? product.vends / product.shown
+          : product.selections > 0
+            ? product.vends / product.selections
+            : null,
     }))
     .sort((a, b) => b.vends - a.vends || b.shown - a.shown || a.name.localeCompare(b.name))
 

@@ -57,7 +57,8 @@ Public URL: [https://theinternetvendingmachine.com](https://theinternetvendingma
 
 1. Create a project.
 2. Run [`supabase/schema.sql`](supabase/schema.sql) in the SQL editor.
-3. Copy the project URL and anon key into env vars.
+3. Run the SQL files in [`supabase/migrations/`](supabase/migrations/) in date order, including [`20260824_analytics_visits_readable.sql`](supabase/migrations/20260824_analytics_visits_readable.sql).
+4. Copy the project URL and anon key into env vars.
 
 Inventory stays in [`src/data/products.ts`](src/data/products.ts). Do not move it into Supabase yet.
 
@@ -71,7 +72,7 @@ Inventory stays in [`src/data/products.ts`](src/data/products.ts). Do not move i
 
 ## What V0 stores
 
-- Local: session id, haul, restock history, intro dismissal, metrics, and a backup event log (`ivm.v0.*`)
-- Remote (if configured): anonymous rows in `analytics_events`
+- Local: client id, session id, haul, restock history, intro dismissal, metrics, and a backup event log (`ivm.v0.*`)
+- Remote (if configured): anonymous rows in `analytics_events`. Scan visits in `analytics_visits_readable`. See [docs/ANALYTICS.md](docs/ANALYTICS.md).
 
 Nothing is purchased. STOCK YOUR PRODUCT and FOLLOW RESTOCKS remain informational placeholders. SUGGEST SOMETHING writes to `product_suggestions` when Supabase is configured.
