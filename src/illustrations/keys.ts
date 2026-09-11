@@ -37,6 +37,7 @@ export const ILLUSTRATION_KEYS = [
   "calendar",
   "type",
   "kiosk",
+  "camera",
 ] as const
 
 export type IllustrationKey = (typeof ILLUSTRATION_KEYS)[number]

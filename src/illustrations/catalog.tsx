@@ -416,6 +416,18 @@ function Kiosk({ title }: GlyphProps) {
   )
 }
 
+function Camera({ title }: GlyphProps) {
+  return (
+    <Frame title={title}>
+      <rect x="38" y="54" width="84" height="58" rx="8" {...stroke} />
+      <rect x="58" y="42" width="26" height="12" rx="3" {...stroke} />
+      <circle cx="80" cy="83" r="16" {...stroke} />
+      <circle cx="80" cy="83" r="5" fill="currentColor" />
+      <rect x="48" y="66" width="10" height="8" rx="1" {...stroke} />
+    </Frame>
+  )
+}
+
 const catalog: Record<IllustrationKey, (props: GlyphProps) => JSX.Element> = {
   driver: Driver,
   book: Book,
@@ -455,6 +467,7 @@ const catalog: Record<IllustrationKey, (props: GlyphProps) => JSX.Element> = {
   calendar: Calendar,
   type: TypeMark,
   kiosk: Kiosk,
+  camera: Camera,
 }
 
 export function getIllustration(key: string): (props: GlyphProps) => JSX.Element {
