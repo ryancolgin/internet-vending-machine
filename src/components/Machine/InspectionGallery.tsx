@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState, type KeyboardEvent, type UIEvent } from "react"
 import { track as trackEvent } from "../../lib/analytics"
-import { productGalleryPhotos } from "../../lib/productGallery"
+import { inspectorGallery } from "../../lib/productGallery"
 import type { Product } from "../../types/product"
 import { ProductFigure, type ProductVisual } from "../ProductFigure"
 
@@ -29,10 +29,10 @@ export function InspectionGallery({
     setFailedForId(product.id)
     setFailedSrcs([])
   }
-  const photos = productGalleryPhotos(product).filter(
+  const photos = inspectorGallery(product).filter(
     (photo) => !failedSrcs.includes(photo.src),
   )
-  const frameCount = 1 + photos.length
+  const frameCount = photos.length
   const [index, setIndex] = useState(0)
   const trackRef = useRef<HTMLDivElement>(null)
   const reportedIndexRef = useRef(0)
@@ -102,6 +102,30 @@ export function InspectionGallery({
     )
   }
 
+  if (photos.length === 1) {
+    const photo = photos[0]
+    return (
+      <div className="inspection__stage inspection__stage--gallery">
+        <div
+          className={`inspection-gallery__slide${
+            photo.fit === "cover" ? " inspection-gallery__slide--cover" : ""
+          }${photo.position === "top" ? " inspection-gallery__slide--pos-top" : ""}`}
+        >
+          <img
+            src={photo.src}
+            alt={product.name}
+            draggable={false}
+            onError={() => {
+              setFailedSrcs((current) =>
+                current.includes(photo.src) ? current : [...current, photo.src],
+              )
+            }}
+          />
+        </div>
+      </div>
+    )
+  }
+
   const goTo = (next: number) => {
     const trackEl = trackRef.current
     if (!trackEl) return
@@ -156,16 +180,13 @@ export function InspectionGallery({
             tabIndex={0}
             onScroll={onScroll}
           >
-            <div className="inspection-gallery__slide" aria-hidden="true">
-              <ProductFigure product={product} visual="illustration" />
-            </div>
             {photos.map((photo, photoIndex) => (
               <div
                 className={`inspection-gallery__slide${
                   photo.fit === "cover" ? " inspection-gallery__slide--cover" : ""
                 }${photo.position === "top" ? " inspection-gallery__slide--pos-top" : ""}`}
                 key={photo.src}
-                aria-hidden={index !== photoIndex + 1}
+                aria-hidden={index !== photoIndex}
               >
                 <img
                   src={photo.src}
@@ -187,11 +208,7 @@ export function InspectionGallery({
               type="button"
               key={frame}
               className={`inspection-gallery__dot${frame === index ? " is-active" : ""}`}
-              aria-label={
-                frame === 0
-                  ? "Show machine illustration"
-                  : `Show photo ${frame} of ${photos.length}`
-              }
+              aria-label={`Show photo ${frame + 1} of ${photos.length}`}
               aria-current={frame === index ? "true" : undefined}
               onClick={() => goTo(frame)}
             />

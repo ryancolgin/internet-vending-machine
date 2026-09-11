@@ -1,5 +1,6 @@
 import { useEffect, useState, type CSSProperties } from "react"
 import { getIllustration } from "../illustrations/catalog"
+import { productSlotImage } from "../lib/productGallery"
 import type { Product } from "../types/product"
 
 export type ProductVisual = "illustration" | "photo"
@@ -18,18 +19,19 @@ export function ProductFigure({
   style,
 }: ProductFigureProps) {
   const [photoFailed, setPhotoFailed] = useState(false)
+  const slotPhoto = productSlotImage(product)
 
   useEffect(() => {
     setPhotoFailed(false)
-  }, [product.productImage])
+  }, [slotPhoto?.src])
 
-  const showPhoto = visual === "photo" && Boolean(product.productImage) && !photoFailed
+  const showPhoto = visual === "photo" && Boolean(slotPhoto) && !photoFailed
 
-  if (showPhoto && product.productImage) {
+  if (showPhoto && slotPhoto) {
     return (
       <div className={`product-figure product-figure--photo ${className}`.trim()} style={style}>
         <img
-          src={product.productImage}
+          src={slotPhoto.src}
           alt=""
           onError={() => setPhotoFailed(true)}
         />

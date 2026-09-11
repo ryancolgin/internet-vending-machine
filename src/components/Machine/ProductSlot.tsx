@@ -24,7 +24,7 @@ export function ProductSlot({ code, product, selected, onSelect }: ProductSlotPr
         {badge ? <span className="slot__badge">{BADGE_LABEL[badge]}</span> : <span />}
       </div>
       <div className="slot__well">
-        <ProductFigure product={product} visual="illustration" />
+        <ProductFigure product={product} visual="photo" />
       </div>
       <div className="slot__meta">
         <div className="slot__copy">

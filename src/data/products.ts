@@ -1,9 +1,12 @@
 import type { Product } from "../types/product"
 
-// illustration: key from src/illustrations/keys.ts
-// productImage: optional single photo path/URL (legacy inspector gallery frame)
-// productImages: optional photos; inspector shows the IVM icon as frame 1, then these
-//   string | { src, fit?: "contain" | "cover", position?: "center" | "top" }  — default fit is contain, position is center
+// illustration: key from src/illustrations/keys.ts (slot fallback when no real photos)
+// slotImage: machine slot + inspector frame 1. Not a productImages member.
+//   slotSourceImage: exact gallery path the slot replaces in the inspector.
+//   inspectorFit: optional cover for inspector frame 1 only.
+// productImages: canonical gallery, kept intact. Assembly prepends slotImage
+//   and omits only the exact slotSourceImage path.
+// productImage: optional legacy single photo (folded into the gallery helper)
 
 const emptyMetrics = {
   timesShown: 0,
@@ -28,6 +31,8 @@ export const products: Product[] = [
     source: "HOTO",
     sourceUrl: "https://hototools.com/products/24in1-precision-screwdriver",
     illustration: "driver",
+    slotImage: "/products/hoto-24in1-slot.webp",
+    slotSourceImage: "/products/hoto-24in1-pack.png",
     productImages: [
       { src: "/products/hoto-24in1-pack.png", fit: "contain" },
       { src: "/products/hoto-24in1-use.jpg", fit: "cover" },
@@ -54,6 +59,9 @@ export const products: Product[] = [
     source: "Sequoia Publishing",
     sourceUrl: "https://sequoiapublishing.com/product/pocket-ref/",
     illustration: "book",
+    slotImage: "/products/pocket-ref-slot.webp",
+    slotSourceImage: "/products/pocket-ref-cover.webp",
+    productImages: [{ src: "/products/pocket-ref-cover.webp", fit: "contain" }],
     machineCopy:
       "A dense little brick of useful facts. Hardware, formulas, first aid, and the conversion you never remember.",
     stockReason: "House encyclopedia. Too handy to rotate out.",
@@ -97,6 +105,13 @@ export const products: Product[] = [
     source: "Midori",
     sourceUrl: "https://www.midori-japan.co.jp",
     illustration: "ruler",
+    slotImage: "/products/midori-ruler-slot.webp",
+    slotSourceImage: "/products/midori-ruler.webp",
+    productImages: [
+      { src: "/products/midori-ruler.webp", fit: "contain" },
+      { src: "/products/midori-ruler-extended.webp", fit: "contain" },
+      { src: "/products/midori-ruler-hinge.webp", fit: "cover" },
+    ],
     machineCopy:
       "A 15 cm aluminum rule that folds to pocket size. Precise, quiet, and better looking than it needs to be.",
     stockReason: "The measuring tool people keep on the desk.",
@@ -140,6 +155,8 @@ export const products: Product[] = [
     source: "Singer",
     sourceUrl: "https://www.singer.com",
     illustration: "sewing-kit",
+    slotImage: "/products/singer-mini-slot.webp",
+    slotSourceImage: "/products/singer-mini.webp",
     productImages: [{ src: "/products/singer-mini.webp", fit: "contain" }],
     machineCopy:
       "95 tiny things for fixing the thing that just ripped. A small repair kit worth having before you need it.",
@@ -162,6 +179,8 @@ export const products: Product[] = [
     source: "Field Notes",
     sourceUrl: "https://fieldnotesbrand.com/products/original-kraft",
     illustration: "notebook",
+    slotImage: "/products/field-notes-slot.webp",
+    slotSourceImage: "/products/field-notes-original-detail.webp",
     productImages: [
       { src: "/products/field-notes-original-detail.webp", fit: "contain" },
     ],
@@ -269,6 +288,9 @@ export const products: Product[] = [
     source: "MUJI",
     sourceUrl: "https://www.muji.us/products/portable-scissors-9s65",
     illustration: "scissors",
+    slotImage: "/products/muji-scissors-slot.webp",
+    slotSourceImage: "/products/muji-scissors.webp",
+    productImages: [{ src: "/products/muji-scissors.webp", fit: "contain" }],
     machineCopy:
       "Covered blades, pocketable, no branding shouting at you. The scissors you can throw in a bag.",
     status: "active",
@@ -289,6 +311,9 @@ export const products: Product[] = [
     source: "Tombow",
     sourceUrl: "https://www.tombow.com",
     illustration: "eraser",
+    slotImage: "/products/tombow-zero-slot.webp",
+    slotSourceImage: "/products/tombow-zero.webp",
+    productImages: [{ src: "/products/tombow-zero.webp", fit: "contain" }],
     machineCopy:
       "A 2.3 mm eraser for the one wrong letter. Precision correction that feels like a drafting tool.",
     status: "active",
@@ -334,6 +359,12 @@ export const products: Product[] = [
     source: "Hightide",
     sourceUrl: "https://hightide-jp.com",
     illustration: "pouch",
+    slotImage: "/products/nahe-pouch-slot.webp",
+    slotSourceImage: "/products/nahe-pouch.webp",
+    productImages: [
+      { src: "/products/nahe-pouch.webp", fit: "contain" },
+      { src: "/products/nahe-pouch-charcoal.webp", fit: "contain" },
+    ],
     machineCopy:
       "A flat mesh pouch for cables, pills, or the bits that live at the bottom of a bag. See-through on purpose.",
     status: "active",
@@ -354,6 +385,13 @@ export const products: Product[] = [
     source: "Midori",
     sourceUrl: "https://md-product.com/en/products/md-notebook-a6",
     illustration: "notebook",
+    slotImage: "/products/md-notebook-slot.webp",
+    slotSourceImage: "/products/md-notebook.webp",
+    productImages: [
+      { src: "/products/md-notebook.webp", fit: "contain" },
+      { src: "/products/md-notebook-band.webp", fit: "cover" },
+      { src: "/products/md-notebook-open.webp", fit: "cover" },
+    ],
     machineCopy:
       "Cream paper, a cotton cover, and no agenda. Midori’s argument that a notebook should disappear under ink.",
     status: "active",
@@ -394,6 +432,9 @@ export const products: Product[] = [
     source: "Gerber",
     sourceUrl: "https://gerbergear.com/products/shard-22-01769n",
     illustration: "shard",
+    slotImage: "/products/gerber-shard-slot.webp",
+    slotSourceImage: "/products/gerber-shard.webp",
+    productImages: [{ src: "/products/gerber-shard.webp", fit: "contain" }],
     machineCopy:
       "A keychain pry bar, bottle opener, and screwdriver that TSA generally ignores. Seven tools, no blade.",
     status: "test",
@@ -414,6 +455,13 @@ export const products: Product[] = [
     source: "Marvy Uchida",
     sourceUrl: "https://uchida.com/products/le-pen",
     illustration: "pen",
+    slotImage: "/products/lepen-slot.webp",
+    slotSourceImage: "/products/lepen.webp",
+    productImages: [
+      { src: "/products/lepen.webp", fit: "contain" },
+      { src: "/products/lepen-uncapped.webp", fit: "contain" },
+      { src: "/products/lepen-colors.webp", fit: "contain" },
+    ],
     machineCopy:
       "A needle-point felt pen people get quietly evangelical about. Buy one, then a handful.",
     status: "house-stock",
@@ -434,6 +482,12 @@ export const products: Product[] = [
     source: "Stalogy",
     sourceUrl: "https://stalogy.com",
     illustration: "notebook",
+    slotImage: "/products/stalogy-365-slot.webp",
+    slotSourceImage: "/products/stalogy-365.webp",
+    productImages: [
+      { src: "/products/stalogy-365.webp", fit: "contain" },
+      { src: "/products/stalogy-365-band.webp", fit: "contain" },
+    ],
     machineCopy:
       "365 thin pages. Start any day. A dated notebook that does not punish you for missing February.",
     status: "active",
@@ -454,6 +508,9 @@ export const products: Product[] = [
     source: "Kaweco",
     sourceUrl: "https://www.kaweco-pen.com",
     illustration: "pen",
+    slotImage: "/products/kaweco-sport-slot.webp",
+    slotSourceImage: "/products/kaweco-sport.webp",
+    productImages: [{ src: "/products/kaweco-sport.webp", fit: "contain" }],
     machineCopy:
       "A pocket fountain pen from 1930s octagonal tooling. Cap it, it shortens. Uncap it, it writes like a tool.",
     status: "active",
@@ -475,6 +532,9 @@ export const products: Product[] = [
     source: "Rhodia",
     sourceUrl: "https://www.rhodiapads.com",
     illustration: "notebook",
+    slotImage: "/products/rhodia-16-slot.webp",
+    slotSourceImage: "/products/rhodia-16.webp",
+    productImages: [{ src: "/products/rhodia-16.webp", fit: "contain" }],
     machineCopy:
       "Orange cover, micro-perforated sheets, paper that does not feather. The pad next to the good pen.",
     status: "active",
@@ -575,6 +635,12 @@ export const products: Product[] = [
     source: "Hightide",
     sourceUrl: "https://www.hightide.co.jp/c/category/stationery/tape/item-dp114",
     illustration: "tape",
+    slotImage: "/products/penco-tape-slot.webp",
+    slotSourceImage: "/products/penco-tape.webp",
+    productImages: [
+      { src: "/products/penco-tape.webp", fit: "contain" },
+      { src: "/products/penco-tape-black.webp", fit: "contain" },
+    ],
     machineCopy:
       "A handheld label tape writer. Emboss a name, a drawer, a warning. Satisfying in a 1974 way.",
     status: "test",
@@ -596,6 +662,12 @@ export const products: Product[] = [
     source: "Blackwing",
     sourceUrl: "https://blackwing602.com/products/blackwing-602-set-of-12",
     illustration: "pencil",
+    slotImage: "/products/blackwing-602-slot.webp",
+    slotSourceImage: "/products/blackwing-602.webp",
+    productImages: [
+      { src: "/products/blackwing-602.webp", fit: "contain" },
+      { src: "/products/blackwing-602-box.webp", fit: "contain" },
+    ],
     machineCopy:
       "A dozen firm, smooth pencils with a replaceable eraser. The 602 is the one people mean when they say Blackwing.",
     status: "active",
@@ -616,6 +688,9 @@ export const products: Product[] = [
     source: "Kikkerland",
     sourceUrl: "https://kikkerland.com",
     illustration: "shard",
+    slotImage: "/products/kikkerland-survival-slot.webp",
+    slotSourceImage: "/products/kikkerland-survival.webp",
+    productImages: [{ src: "/products/kikkerland-survival.webp", fit: "contain" }],
     machineCopy:
       "A credit-card tool with 11 functions and a slightly unserious face. Wildcard stock. Surprisingly used.",
     status: "test",
@@ -677,6 +752,9 @@ export const products: Product[] = [
     source: "Nitecore",
     sourceUrl: "https://www.nitecore.com",
     illustration: "flashlight",
+    slotImage: "/products/nitecore-tube-slot.webp",
+    slotSourceImage: "/products/nitecore-tube.webp",
+    productImages: [{ src: "/products/nitecore-tube.webp", fit: "contain" }],
     machineCopy:
       "A USB-rechargeable capsule light. Two brightness steps, almost no weight, lives on a zipper.",
     status: "active",
@@ -897,6 +975,9 @@ export const products: Product[] = [
     source: "REI",
     sourceUrl: "https://www.rei.com/product/159542/gear-aid-tenacious-tape-mini-patches",
     illustration: "patch",
+    slotImage: "/products/tenacious-tape-mini-slot.webp",
+    slotSourceImage: "/products/tenacious-tape-mini.webp",
+    productImages: [{ src: "/products/tenacious-tape-mini.webp", fit: "contain" }],
     machineCopy:
       "Clear ripstop patches for the tear you notice at the trailhead. Small enough to live in a hip belt.",
     status: "test",
@@ -916,6 +997,9 @@ export const products: Product[] = [
     source: "Matador",
     sourceUrl: "https://www.matadorequipment.com/products/flatpak-travel-soap-bar-case-v2-black",
     illustration: "pouch",
+    slotImage: "/products/matador-flatpak-soap-slot.webp",
+    slotSourceImage: "/products/matador-flatpak-soap.webp",
+    productImages: [{ src: "/products/matador-flatpak-soap.webp", fit: "contain" }],
     machineCopy:
       "A welded soap sleeve that drains instead of stewing. The bar dries; the toiletry bag does not become a pond.",
     status: "test",
@@ -935,6 +1019,9 @@ export const products: Product[] = [
     source: "Gear Aid",
     sourceUrl: "https://www.gearaid.com/products/heroclip-small",
     illustration: "carabiner",
+    slotImage: "/products/heroclip-small-slot.webp",
+    slotSourceImage: "/products/heroclip-small.webp",
+    productImages: [{ src: "/products/heroclip-small.webp", fit: "contain" }],
     machineCopy:
       "A rotating hook that turns a table edge, rail, or stall door into a bag hook. The carabiner that actually hangs things.",
     status: "test",
@@ -1049,6 +1136,12 @@ export const products: Product[] = [
     source: "TickTime",
     sourceUrl: "https://www.ticktime.store/products/ticktime-2-max",
     illustration: "timer",
+    slotImage: "/products/ticktime-2-max-slot.webp",
+    slotSourceImage: "/products/ticktime-2-max.webp",
+    productImages: [
+      { src: "/products/ticktime-2-max.webp", fit: "contain" },
+      { src: "/products/ticktime-2-max-black.webp", fit: "contain" },
+    ],
     machineCopy:
       "A physical timer you twist instead of unlock. Focus as a knob, not a notification.",
     status: "test",
@@ -1088,6 +1181,9 @@ export const products: Product[] = [
     source: "Dr. Bronner's",
     sourceUrl: "https://www.drbronner.com/products/citrus-pure-castile-liquid-soap",
     illustration: "bottle",
+    slotImage: "/products/dr-bronners-castile-travel-slot.webp",
+    slotSourceImage: "/products/dr-bronners-castile-travel.webp",
+    productImages: [{ src: "/products/dr-bronners-castile-travel.webp", fit: "contain" }],
     machineCopy:
       "A travel bottle of the soap that also washes dishes, bodies, and the occasional campsite pan. One liquid, many jobs.",
     status: "test",
@@ -1107,6 +1203,9 @@ export const products: Product[] = [
     source: "Nomadix",
     sourceUrl: "https://www.nomadix.co/products/tiny-towel-3-pack-patterns",
     illustration: "towel",
+    slotImage: "/products/nomadix-tiny-towel-slot.webp",
+    slotSourceImage: "/products/nomadix-tiny-towel.webp",
+    productImages: [{ src: "/products/nomadix-tiny-towel.webp", fit: "contain" }],
     machineCopy:
       "Three compact towels that pack flatter than they should. Gym, sink, or picnic — then they hang dry.",
     status: "test",
@@ -1575,6 +1674,8 @@ export const products: Product[] = [
     source: "Atlas",
     sourceUrl: "https://horizon-tab.vercel.app/",
     illustration: "browser",
+    slotImage: "/products/horizon-slot.webp",
+    slotSourceImage: "/products/horizon-ivm.png",
     productImages: [{ src: "/products/horizon-ivm.png", fit: "cover" }],
     machineCopy:
       "A focused browser home/new-tab console for time, weather, daylight, todos, and quick links.",
@@ -1596,6 +1697,8 @@ export const products: Product[] = [
     source: "CHEF iQ",
     sourceUrl: "https://chefiq.pxf.io/rE1aJG",
     illustration: "timer",
+    slotImage: "/products/chef-iq-sense-slot.webp",
+    slotSourceImage: "/products/chef-iq-sense-case.webp",
     productImages: [
       { src: "/products/chef-iq-sense-case.webp", fit: "contain" },
       { src: "/products/chef-iq-sense-salmon.webp", fit: "cover" },
@@ -1621,9 +1724,11 @@ export const products: Product[] = [
     source: "LEVEL8",
     sourceUrl: "https://level8gruopcorp.pxf.io/QYxjDA",
     illustration: "pouch",
+    slotImage: "/products/level8-packing-cubes-slot.webp",
+    slotSourceImage: "/products/level8-packing-cubes.png",
     productImages: [
       { src: "/products/level8-packing-cubes.png", fit: "contain" },
-      { src: "/products/level8-packing-cubes-packed.png", fit: "contain" },
+      { src: "/products/level8-packing-cubes-packed.png", fit: "cover" },
       { src: "/products/level8-packing-cubes-stack.png", fit: "contain" },
     ],
     machineCopy:
@@ -1646,6 +1751,8 @@ export const products: Product[] = [
     source: "XTEINK",
     sourceUrl: "https://go.sjv.io/vDgP7v",
     illustration: "book",
+    slotImage: "/products/xteink-x4-pro-slot.webp",
+    slotSourceImage: "/products/xteink-x4-pro.png",
     productImages: [
       { src: "/products/xteink-x4-pro.png", fit: "contain" },
       { src: "/products/xteink-x4-pro-hand.jpg", fit: "cover" },
@@ -1671,6 +1778,8 @@ export const products: Product[] = [
     source: "XTEINK",
     sourceUrl: "https://go.sjv.io/qWGVPb",
     illustration: "flashlight",
+    slotImage: "/products/xteink-reading-light-slot.webp",
+    slotSourceImage: "/products/xteink-magnetic-reading-light.webp",
     productImages: [
       { src: "/products/xteink-magnetic-reading-light.webp", fit: "contain" },
       { src: "/products/xteink-magnetic-reading-light-kit.webp", fit: "contain" },
@@ -1696,6 +1805,8 @@ export const products: Product[] = [
     source: "WiiM",
     sourceUrl: "https://wiimhome.sjv.io/c/7640638/4001929/56074",
     illustration: "spark",
+    slotImage: "/products/wiim-sound-lite-slot.webp",
+    slotSourceImage: "/products/wiim-sound-lite.png",
     productImages: [{ src: "/products/wiim-sound-lite.png", fit: "contain" }],
     machineCopy:
       "A compact high-resolution wireless speaker with 100W output, automatic room correction, and multi-room streaming.",
@@ -1718,10 +1829,12 @@ export const products: Product[] = [
     sourceUrl:
       "https://level8gruopcorp.pxf.io/c/7640638/3935954/54005?prodsku=13061379915887&u=https%3A%2F%2Fwww.level8cases.com%2Fproducts%2Flevel8-atlas-laptop-backpack-for-macbook&intsrc=APIG_34529",
     illustration: "pouch",
+    slotImage: "/products/level8-atlas-backpack-slot.webp",
+    slotSourceImage: "/products/level8-atlas-backpack.webp",
     productImages: [
       { src: "/products/level8-atlas-backpack.webp", fit: "contain" },
       { src: "/products/level8-atlas-backpack-open.webp", fit: "contain" },
-      { src: "/products/level8-atlas-backpack-detail.webp", fit: "contain" },
+      { src: "/products/level8-atlas-backpack-detail.webp", fit: "cover" },
     ],
     machineCopy:
       "A sleek laptop backpack with organized storage, a protective laptop compartment, and a clean travel-friendly shape for everyday carry, commuting, or light trips.",
@@ -1743,6 +1856,8 @@ export const products: Product[] = [
     source: "LEVEL8",
     sourceUrl: "https://level8gruopcorp.pxf.io/1GK9XB",
     illustration: "pouch",
+    slotImage: "/products/level8-element-toiletry-slot.webp",
+    slotSourceImage: "/products/black_level8_travel_organizer_bag.webp",
     productImages: [
       { src: "/products/black_level8_travel_organizer_bag.webp", fit: "contain" },
       { src: "/products/level8_travel_organizer_bag_set.webp", fit: "contain" },
@@ -1767,6 +1882,8 @@ export const products: Product[] = [
     source: "Blu Dot",
     sourceUrl: "https://bludot.pxf.io/B5YL1L",
     illustration: "tray",
+    slotImage: "/products/bludot-ends-trays-slot.webp",
+    slotSourceImage: "/products/bludot-ends-trays-1.webp",
     productImages: [
       { src: "/products/bludot-ends-trays-1.webp", fit: "contain" },
       { src: "/products/bludot-ends-trays-2.webp", fit: "contain" },
@@ -1792,6 +1909,8 @@ export const products: Product[] = [
     source: "Blu Dot",
     sourceUrl: "https://bludot.pxf.io/0GBa1V",
     illustration: "tray",
+    slotImage: "/products/bludot-100-trays-slot.webp",
+    slotSourceImage: "/products/bludot-100-trays-1.webp",
     productImages: [
       { src: "/products/bludot-100-trays-1.webp", fit: "contain" },
       { src: "/products/bludot-100-trays-2.webp", fit: "contain" },
@@ -1817,6 +1936,8 @@ export const products: Product[] = [
     source: "Blu Dot",
     sourceUrl: "https://bludot.pxf.io/n4edB7",
     illustration: "tray",
+    slotImage: "/products/bludot-square-one-slot.webp",
+    slotSourceImage: "/products/black_wooden_three_compartment_organizer_tray.webp",
     productImages: [
       { src: "/products/black_wooden_three_compartment_organizer_tray.webp", fit: "contain" },
       { src: "/products/warm_wooden_divided_organizer_tray.webp", fit: "contain" },
@@ -1841,6 +1962,8 @@ export const products: Product[] = [
     source: "Blu Dot",
     sourceUrl: "https://bludot.pxf.io/JkYPWa",
     illustration: "shard",
+    slotImage: "/products/bludot-2d3d-bowl-slot.webp",
+    slotSourceImage: "/products/copper_rose_gold_polygonal_metal_tray.webp",
     productImages: [
       { src: "/products/copper_rose_gold_polygonal_metal_tray.webp", fit: "contain" },
       { src: "/products/deep_blue_hexagonal_metal_tray.webp", fit: "contain" },
@@ -1866,6 +1989,8 @@ export const products: Product[] = [
     source: "Blu Dot",
     sourceUrl: "https://bludot.pxf.io/R0DVWg",
     illustration: "tray",
+    slotImage: "/products/bludot-odds-trays-slot.webp",
+    slotSourceImage: "/products/nested_wooden_organizer_tray_set.webp",
     productImages: [
       { src: "/products/nested_wooden_organizer_tray_set.webp", fit: "contain" },
       { src: "/products/layered_wood_desk_organizer_tray.webp", fit: "contain" },
@@ -1891,6 +2016,8 @@ export const products: Product[] = [
     source: "Blu Dot",
     sourceUrl: "https://bludot.pxf.io/vDgdOe",
     illustration: "book",
+    slotImage: "/products/bludot-less-is-more-slot.webp",
+    slotSourceImage: "/products/less_is_more_design_book_cover.webp",
     productImages: [{ src: "/products/less_is_more_design_book_cover.webp", fit: "contain" }],
     machineCopy:
       "Twenty years of Blu Dot, bound by Rizzoli. Three hundred sixty pages of designing and making real things for real people — a book that belongs on the table, not in a drawer.",
@@ -1912,6 +2039,8 @@ export const products: Product[] = [
     source: "Satechi",
     sourceUrl: "https://satechi.pxf.io/enxLj1",
     illustration: "cable",
+    slotImage: "/products/satechi-onthego-7-in-1-slot.webp",
+    slotSourceImage: "/products/satechi-onthego-7-in-1-multiport-adapter-1.webp",
     productImages: [
       { src: "/products/satechi-onthego-7-in-1-multiport-adapter-1.webp", fit: "contain" },
       { src: "/products/satechi-onthego-7-in-1-multiport-adapter-2.webp", fit: "contain" },
@@ -1937,10 +2066,12 @@ export const products: Product[] = [
     source: "Satechi",
     sourceUrl: "https://satechi.pxf.io/JkYMZ2",
     illustration: "charger",
+    slotImage: "/products/satechi-qi2-trio-slot.webp",
+    slotSourceImage: "/products/satechi-qi2-trio-wireless-charging-pad-1.webp",
     productImages: [
       { src: "/products/satechi-qi2-trio-wireless-charging-pad-1.webp", fit: "contain" },
       { src: "/products/satechi-qi2-trio-wireless-charging-pad-2.webp", fit: "contain" },
-      { src: "/products/satechi-qi2-trio-wireless-charging-pad-3.webp", fit: "contain" },
+      { src: "/products/satechi-qi2-trio-wireless-charging-pad-3.webp", fit: "cover" },
     ],
     machineCopy:
       "Phone, Watch, and AirPods on one pad. Qi2, a fold-up stand, and one fewer nest of charging pucks on the nightstand.",
@@ -1962,10 +2093,12 @@ export const products: Product[] = [
     source: "Satechi",
     sourceUrl: "https://satechi.pxf.io/X45MEG",
     illustration: "charger",
+    slotImage: "/products/satechi-onthego-3-in-1-slot.webp",
+    slotSourceImage: "/products/satechi-onthego-3-in-1-charger-1.webp",
     productImages: [
       { src: "/products/satechi-onthego-3-in-1-charger-1.webp", fit: "contain" },
       { src: "/products/satechi-onthego-3-in-1-charger-2.webp", fit: "contain" },
-      { src: "/products/satechi-onthego-3-in-1-charger-3.webp", fit: "contain" },
+      { src: "/products/satechi-onthego-3-in-1-charger-3.webp", fit: "cover" },
     ],
     machineCopy:
       "Three charging pads that fold into a leather puck. Phone, Watch, AirPods — then it disappears into the bag.",
@@ -1987,6 +2120,8 @@ export const products: Product[] = [
     source: "Satechi",
     sourceUrl: "https://satechi.pxf.io/qWGa95",
     illustration: "charger",
+    slotImage: "/products/satechi-onthego-67w-slot.webp",
+    slotSourceImage: "/products/satechi-onthego-67w-slim-wall-charger-1.webp",
     productImages: [
       { src: "/products/satechi-onthego-67w-slim-wall-charger-1.webp", fit: "contain" },
       { src: "/products/satechi-onthego-67w-slim-wall-charger-3-lifestyle.webp", fit: "cover" },
@@ -2011,10 +2146,12 @@ export const products: Product[] = [
     source: "Satechi",
     sourceUrl: "https://satechi.pxf.io/5kBvdj",
     illustration: "clip",
+    slotImage: "/products/satechi-findall-card-slot.webp",
+    slotSourceImage: "/products/satechi-findall-card-1.webp",
     productImages: [
       { src: "/products/satechi-findall-card-1.webp", fit: "contain" },
       { src: "/products/satechi-findall-card-2.webp", fit: "contain" },
-      { src: "/products/satechi-findall-card-3.webp", fit: "contain" },
+      { src: "/products/satechi-findall-card-3.webp", fit: "cover" },
     ],
     machineCopy:
       "A rechargeable Find My card the size of a credit card. Wallet, passport sleeve, or the bag you always lose — no coin cell.",
@@ -2036,6 +2173,8 @@ export const products: Product[] = [
     source: "Satechi",
     sourceUrl: "https://satechi.pxf.io/oNakKb",
     illustration: "pouch",
+    slotImage: "/products/satechi-findall-passport-slot.webp",
+    slotSourceImage: "/products/satechi-findall-passport-cover-1.webp",
     productImages: [
       { src: "/products/satechi-findall-passport-cover-1.webp", fit: "contain" },
       { src: "/products/satechi-findall-passport-cover-2.webp", fit: "contain" },
@@ -2061,6 +2200,8 @@ export const products: Product[] = [
     source: "Satechi",
     sourceUrl: "https://satechi.pxf.io/zzDoKO",
     illustration: "carabiner",
+    slotImage: "/products/satechi-findall-keychain-slot.webp",
+    slotSourceImage: "/products/satechi-findall-keychain-1.webp",
     productImages: [
       { src: "/products/satechi-findall-keychain-1.webp", fit: "contain" },
       { src: "/products/satechi-findall-keychain-2.webp", fit: "contain" },
@@ -2086,6 +2227,8 @@ export const products: Product[] = [
     source: "Satechi",
     sourceUrl: "https://satechi.pxf.io/xJqgKA",
     illustration: "clip",
+    slotImage: "/products/satechi-findall-luggage-tag-slot.webp",
+    slotSourceImage: "/products/satechi-findall-luggage-tag-1.webp",
     productImages: [
       { src: "/products/satechi-findall-luggage-tag-1.webp", fit: "contain" },
       { src: "/products/satechi-findall-luggage-tag-2.webp", fit: "contain" },
@@ -2112,10 +2255,12 @@ export const products: Product[] = [
     source: "Satechi",
     sourceUrl: "https://satechi.pxf.io/PzqGde",
     illustration: "pouch",
+    slotImage: "/products/satechi-findall-glasses-case-slot.webp",
+    slotSourceImage: "/products/satechi-findall-glasses-case-1.webp",
     productImages: [
       { src: "/products/satechi-findall-glasses-case-1.webp", fit: "contain" },
       { src: "/products/satechi-findall-glasses-case-2.webp", fit: "contain" },
-      { src: "/products/satechi-findall-glasses-case-3.webp", fit: "contain" },
+      { src: "/products/satechi-findall-glasses-case-3.webp", fit: "cover" },
     ],
     machineCopy:
       "A fold-flat leather glasses case with Find My inside. Open it into a triangle, close it into a slab, ping it when it walks off.",
