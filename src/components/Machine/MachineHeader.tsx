@@ -1,4 +1,4 @@
-import { MACHINE_NAME, MACHINE_NUMBER, MACHINE_TAGLINE, NEXT_RESTOCK_LABEL } from "../../types/machine"
+import { MACHINE_NAME, MACHINE_NUMBER, MACHINE_STATUS_TAIL, MACHINE_TAGLINE } from "../../types/machine"
 import { useMachine } from "../../state/MachineContext"
 
 export function MachineHeader() {
@@ -31,7 +31,7 @@ export function MachineHeader() {
         <span>
           <b>{newCount}</b> NEW
         </span>
-        <span>RESTOCK · {NEXT_RESTOCK_LABEL}</span>
+        <span>{MACHINE_STATUS_TAIL}</span>
       </p>
     </header>
   )

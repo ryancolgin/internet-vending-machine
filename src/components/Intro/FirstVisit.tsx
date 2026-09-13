@@ -14,18 +14,31 @@ export function FirstVisit() {
       }}
     >
       <div className="panel">
-        <h2 id="intro-title">TEST THE MACHINE</h2>
-        <p>The machine is still being stocked. Help decide what deserves a slot.</p>
+        <h2 id="intro-title">EDITION 001 IS COMING</h2>
         <p>
-          Browse the stock and hit <b>VEND</b> on anything you&apos;d genuinely want.
+          The Internet Vending Machine officially launches Friday, September 18.
         </p>
         <p>
-          Use <b>ALREADY OWN</b> if something already has your vote.
+          Until then, browse the current stock and hit <b>VEND</b> on anything
+          you&apos;d genuinely want.
+        </p>
+        <p>Build a Haul and help shape what makes the first edition.</p>
+        <p>
+          <button
+            type="button"
+            className="intro__inline"
+            onClick={() => {
+              dismissIntro()
+              setModal("follow")
+            }}
+          >
+            FOLLOW RESTOCKS
+          </button>{" "}
+          so you know when Edition 001 goes live.
         </p>
         <p>
           Hit <b>RESTOCK MACHINE</b> for another batch.
         </p>
-        <p>Build a haul and share it if you find a few things worth taking.</p>
         <p>
           <button
             type="button"
