@@ -53,14 +53,14 @@ export type Product = {
   source?: string
   sourceUrl?: string
   illustration: string
-  /** Dedicated slot photo. Machine well + inspector frame 1 when present. */
+  /** Dedicated slot photo. Also inspector frame 1 when it replaces productImages[0]. */
   slotImage?: string
-  /** Exact gallery path this slotImage was derived from. Inspector omits that one path. */
+  /** Gallery path this slot was derived from. Matching productImages[0] makes the slot lead. */
   slotSourceImage?: string
-  /** Inspector-only fit for frame 1. Slot well always uses contain. */
+  /** Inspector-only fit for a leading slot frame. Slot well always uses contain. */
   inspectorFit?: ProductImageFit
   productImage?: string
-  /** Canonical inspector frames. Assembly prepends slotImage and skips slotSourceImage. */
+  /** Canonical inspector frames. A leading slot omits the matching slotSourceImage path. */
   productImages?: ProductImageEntry[]
 
   machineCopy: string

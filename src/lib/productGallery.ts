@@ -35,13 +35,32 @@ function assetPath(src: string): string {
   return bare
 }
 
+function firstProductImageSrc(
+  product: Pick<Product, "productImage" | "productImages">,
+): string | undefined {
+  const entry = product.productImages?.[0]
+  if (typeof entry === "string") return entry
+  if (entry) return entry.src
+  return product.productImage
+}
+
+function slotLeadsInspector(
+  product: Pick<Product, "productImage" | "productImages" | "slotImage" | "slotSourceImage">,
+): boolean {
+  if (!product.slotImage) return false
+  const first = firstProductImageSrc(product)
+  if (!first) return true
+  if (!product.slotSourceImage) return true
+  return assetPath(product.slotSourceImage) === assetPath(first)
+}
+
 /**
  * Inspector gallery.
- * Frame 1 is the dedicated slot asset when one exists (contain unless
- * inspectorFit is cover). Canonical productImages follow, minus the
- * exact slotSourceImage path when the slot is a derivative of that
- * gallery file. Dedupes only on exact resolved path. Icons are never
- * appended.
+ * The slot asset leads only when it replaces the first gallery image
+ * (slotSourceImage matches productImages[0]). Otherwise the slot is
+ * machine-only and productImages keep their authored order. Leading
+ * slots use contain unless inspectorFit is cover. Dedupes on exact
+ * resolved path. Icons are never appended.
  */
 export function inspectorGallery(
   product: Pick<
@@ -51,8 +70,9 @@ export function inspectorGallery(
 ): ProductGalleryPhoto[] {
   const photos: ProductGalleryPhoto[] = []
   const seen = new Set<string>()
+  const slotLeads = slotLeadsInspector(product)
   const excluded = new Set(
-    product.slotSourceImage ? [assetPath(product.slotSourceImage)] : [],
+    slotLeads && product.slotSourceImage ? [assetPath(product.slotSourceImage)] : [],
   )
 
   const add = (
@@ -67,7 +87,7 @@ export function inspectorGallery(
     photos.push({ src, fit, position })
   }
 
-  if (product.slotImage) {
+  if (slotLeads && product.slotImage) {
     add(
       product.slotImage,
       product.inspectorFit === "cover" ? "cover" : "contain",

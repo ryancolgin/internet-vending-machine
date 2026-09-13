@@ -1,11 +1,13 @@
 import type { Product } from "../types/product"
 
 // illustration: key from src/illustrations/keys.ts (slot fallback when no real photos)
-// slotImage: machine slot + inspector frame 1. Not a productImages member.
-//   slotSourceImage: exact gallery path the slot replaces in the inspector.
-//   inspectorFit: optional cover for inspector frame 1 only.
-// productImages: canonical gallery, kept intact. Assembly prepends slotImage
-//   and omits only the exact slotSourceImage path.
+// slotImage: machine slot photo. Also inspector frame 1 when it replaces
+//   productImages[0] (slotSourceImage matches that path).
+//   slotSourceImage: gallery path the slot was derived from. Matching the
+//   first gallery image makes the slot lead the inspector; otherwise the
+//   slot stays machine-only and productImages keep their order.
+//   inspectorFit: optional cover for a leading slot frame only.
+// productImages: canonical inspector gallery.
 // productImage: optional legacy single photo (folded into the gallery helper)
 
 const emptyMetrics = {
@@ -2674,11 +2676,9 @@ export const products: Product[] = [
       "https://nalgene.pxf.io/c/7640638/1104884/12848?prodsku=woocommerce_gpf_881652&u=https%3A%2F%2Fnalgene.com%2Fproduct%2Fgeyser-outdoor-clean-kit%2F&intsrc=APIG_8574",
     illustration: "kit",
     slotImage: "/products/nalgene-geyser-clean-kit-slot.webp",
-    slotSourceImage: "/products/nalgene-geyser-clean-kit-1.webp",
-    inspectorFit: "cover",
+    slotSourceImage: "/products/nalgene-geyser-clean-kit-slot.webp",
     productImages: [
-      { src: "/products/nalgene-geyser-clean-kit-1.webp", fit: "cover" },
-      { src: "/products/nalgene-geyser-clean-kit-2.webp", fit: "contain" },
+      { src: "/products/nalgene-geyser-clean-kit-1.webp", fit: "contain" },
     ],
     machineCopy:
       "A small USB-powered outdoor wash system that turns a wide-mouth Nalgene into the water supply. Battery bank not included.",
@@ -2712,6 +2712,139 @@ export const products: Product[] = [
     status: "active",
     badges: ["new"],
     addedDate: "2026-09-11",
+    metrics: { ...emptyMetrics },
+  },
+  {
+    id: "leatherman-wave-plus",
+    name: "Wave Plus",
+    brand: "Leatherman",
+    shortName: "Wave Plus",
+    type: "physical",
+    category: "tools",
+    tags: ["tools", "carry", "multitool"],
+    price: 129.95,
+    priceLabel: "$129.95",
+    source: "Leatherman",
+    sourceUrl: "https://www.leatherman.com/products/wave",
+    illustration: "kit",
+    slotImage: "/products/leatherman-wave-plus-slot.webp",
+    slotSourceImage: "/products/leatherman-wave-plus-1.webp",
+    productImages: [
+      { src: "/products/leatherman-wave-plus-1.webp", fit: "contain" },
+      { src: "/products/leatherman-wave-plus-2.webp", fit: "contain" },
+      { src: "/products/leatherman-wave-plus-3.webp", fit: "cover" },
+    ],
+    machineCopy:
+      "The 18-tool workhorse. Pliers, scissors, files, and replaceable wire cutters in the Leatherman people actually carry.",
+    status: "active",
+    badges: ["new"],
+    addedDate: "2026-09-12",
+    metrics: { ...emptyMetrics },
+  },
+  {
+    id: "leatherman-skeletool-cx",
+    name: "Skeletool CX",
+    brand: "Leatherman",
+    shortName: "Skeletool CX",
+    type: "physical",
+    category: "carry",
+    tags: ["carry", "tools", "edc", "multitool"],
+    price: 99.95,
+    priceLabel: "$99.95",
+    source: "Leatherman",
+    sourceUrl: "https://www.leatherman.com/products/skeletool-cx",
+    illustration: "carabiner",
+    slotImage: "/products/leatherman-skeletool-cx-slot.webp",
+    slotSourceImage: "/products/leatherman-skeletool-cx-1.webp",
+    productImages: [
+      { src: "/products/leatherman-skeletool-cx-1.webp", fit: "contain" },
+      { src: "/products/leatherman-skeletool-cx-2.webp", fit: "contain" },
+      { src: "/products/leatherman-skeletool-cx-3.webp", fit: "cover" },
+    ],
+    machineCopy:
+      "Seven tools, five ounces, a pocket clip. The travel-weight Leatherman — not another 18-tool brick.",
+    status: "active",
+    badges: ["new"],
+    addedDate: "2026-09-12",
+    metrics: { ...emptyMetrics },
+  },
+  {
+    id: "flipper-zero",
+    name: "Flipper Zero",
+    brand: "Flipper Devices",
+    shortName: "Flipper Zero",
+    type: "physical",
+    category: "tech",
+    tags: ["tech", "hardware", "wildcard"],
+    price: 169,
+    priceLabel: "$169",
+    source: "Flipper",
+    sourceUrl: "https://flipper.net/products/flipper-zero",
+    illustration: "kit",
+    slotImage: "/products/flipper-zero-slot.webp",
+    slotSourceImage: "/products/flipper-zero-1.webp",
+    productImages: [
+      { src: "/products/flipper-zero-1.webp", fit: "contain" },
+      { src: "/products/flipper-zero-2.webp", fit: "contain" },
+    ],
+    machineCopy:
+      "A pocket hardware multi-tool for NFC, RFID, remotes, and radio experiments. Built for learning the devices you already own.",
+    status: "active",
+    badges: ["new", "wildcard"],
+    addedDate: "2026-09-12",
+    metrics: { ...emptyMetrics },
+  },
+  {
+    id: "stimeez-emotion-explorers",
+    name: "Emotion Explorers",
+    brand: "Stimeez",
+    shortName: "Emotion Explorers",
+    type: "physical",
+    category: "wildcard",
+    tags: ["wildcard", "toys", "sensory"],
+    price: 24.99,
+    priceLabel: "$24.99",
+    source: "Stimeez",
+    sourceUrl: "https://stimeez.com/products/emotion-explorers",
+    illustration: "spark",
+    slotImage: "/products/stimeez-emotion-explorers-slot.webp",
+    slotSourceImage: "/products/stimeez-emotion-explorers-3.webp",
+    productImages: [
+      { src: "/products/stimeez-emotion-explorers-1.webp", fit: "cover" },
+      { src: "/products/stimeez-emotion-explorers-2.webp", fit: "cover" },
+      { src: "/products/stimeez-emotion-explorers-3.webp", fit: "cover" },
+    ],
+    machineCopy:
+      "Six pocket vinyl characters with different textures and moods. A tactile set for exploring feelings without needing the right words.",
+    status: "active",
+    badges: ["new", "wildcard"],
+    addedDate: "2026-09-12",
+    metrics: { ...emptyMetrics },
+  },
+  {
+    id: "awesome-screenshot",
+    name: "Awesome Screenshot",
+    brand: "Awesome Screenshot",
+    shortName: "Awesome Screenshot",
+    type: "software",
+    category: "web",
+    tags: ["web", "screenshot", "recording", "utility"],
+    price: 0,
+    priceLabel: "FREE",
+    source: "Awesome Screenshot",
+    sourceUrl: "https://www.awesomescreenshot.com/",
+    illustration: "browser",
+    slotImage: "/products/awesome-screenshot-slot.webp",
+    slotSourceImage: "/products/awesome-screenshot-slot.webp",
+    productImages: [
+      { src: "/products/awesome-screenshot-1.webp", fit: "contain" },
+      { src: "/products/awesome-screenshot-2.webp", fit: "contain" },
+    ],
+    machineCopy:
+      "Full-page screenshots, quick annotations, and screen recording in one browser tool.",
+    status: "active",
+    badges: ["new"],
+    addedDate: "2026-09-12",
     metrics: { ...emptyMetrics },
   },
 ]
