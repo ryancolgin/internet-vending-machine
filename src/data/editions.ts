@@ -1,4 +1,4 @@
-import type { Edition } from "../types/edition"
+import type { Edition, EditionSlotBadge } from "../types/edition"
 import { SLOT_CODES, type SlotCode } from "../types/product"
 import { makeEmptySlots } from "../lib/slots"
 
@@ -6,8 +6,8 @@ import { makeEmptySlots } from "../lib/slots"
  * Edition catalog. Draft only until Friday.
  *
  * The public/test machine still reads INITIAL_SLOT_PRODUCT_IDS, localStorage
- * slots, and restockMachine(). Do not import this file from MachineContext,
- * restock, or UI until the launch switch below is intentional.
+ * slots, and restockMachine(). A DEV-only `?edition=001` overlay can render
+ * this draft without persisting it or changing production behavior.
  *
  * Friday activation (manual, do not automate yet):
  * 1. Set EDITION_001.status to "current".
@@ -30,21 +30,21 @@ export const EDITION_001: Edition = {
   launchAt: "2026-09-18",
   status: "draft",
   slots: [
-    { slot: "A1", productId: "polaroid-now-gen-3" },
-    { slot: "A2", productId: "field-notes" },
-    { slot: "A3", productId: "singer-mini" },
+    { slot: "A1", productId: "singer-mini" },
+    { slot: "A2", productId: "field-notes", badge: "house-favorite" },
+    { slot: "A3", productId: "ticktime-2-max" },
     { slot: "A4", productId: "midori-ruler" },
-    { slot: "B1", productId: "stimeez-emotion-explorers" },
-    { slot: "B2", productId: "ticktime-2-max" },
-    { slot: "B3", productId: "pocket-ref" },
+    { slot: "B1", productId: "stimeez-emotion-explorers", badge: "new" },
+    { slot: "B2", productId: "polaroid-now-gen-3", badge: "new" },
+    { slot: "B3", productId: "awesome-screenshot" },
     { slot: "B4", productId: "tombow-zero" },
-    { slot: "C1", productId: "nalgene-stained-glass" },
+    { slot: "C1", productId: "nalgene-stained-glass", badge: "new" },
     { slot: "C2", productId: "hoto-24-1" },
     { slot: "C3", productId: "bludot-100-trays" },
-    { slot: "C4", productId: "awesome-screenshot" },
-    { slot: "D1", productId: "leatherman-skeletool-cx" },
-    { slot: "D2", productId: "horizon" },
-    { slot: "D3", productId: "excalidraw" },
+    { slot: "C4", productId: "horizon" },
+    { slot: "D1", productId: "leatherman-skeletool-cx", badge: "new" },
+    { slot: "D2", productId: "pocket-ref", badge: "house-favorite" },
+    { slot: "D3", productId: "excalidraw", badge: "new" },
     { slot: "D4", productId: "satechi-findall-card" },
   ],
 }
@@ -82,4 +82,15 @@ export function editionSlotRecord(edition: Edition): Record<SlotCode, string> {
 export function editionHasAllSlots(edition: Edition): boolean {
   const bySlot = new Map(edition.slots.map((entry) => [entry.slot, entry.productId]))
   return SLOT_CODES.every((code) => Boolean(bySlot.get(code)))
+}
+
+export function editionBadgeForSlot(
+  edition: Edition,
+  slot: SlotCode,
+): EditionSlotBadge | undefined {
+  return edition.slots.find((entry) => entry.slot === slot)?.badge
+}
+
+export function editionNewCount(edition: Edition): number {
+  return edition.slots.filter((entry) => entry.badge === "new").length
 }

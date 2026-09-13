@@ -145,6 +145,10 @@
   color: var(--ink);
 }
 
+.machine-header__preview {
+  color: var(--ink);
+}
+
 .slot-window {
   background: var(--window);
   border: 1px solid var(--enclosure-edge);
@@ -202,6 +206,7 @@
 
 .slot__badge {
   color: var(--accent);
+  white-space: nowrap;
 }
 
 .slot__well {

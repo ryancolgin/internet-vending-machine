@@ -5,11 +5,19 @@ import {
   useEffect,
   useMemo,
   useReducer,
+  useRef,
   useState,
   type ReactNode,
 } from "react"
+import { editionNewCount } from "../data/editions"
 import { INITIAL_SLOT_PRODUCT_IDS, getProduct } from "../data/products"
 import { track } from "../lib/analytics"
+import {
+  getActiveEditionFace,
+  getDevEditionPreview,
+  getDevEditionPreviewSlots,
+} from "../lib/editionPreview"
+import type { Edition } from "../types/edition"
 import { createId, unique } from "../lib/ids"
 import { restockMachine } from "../lib/restock"
 import { getSessionId } from "../lib/session"
@@ -54,10 +62,10 @@ export type MachineState = {
 
 type Action =
   | { type: "HYDRATE"; state: MachineState }
-  | { type: "SELECT_SLOT"; slot: SlotCode }
+  | { type: "SELECT_SLOT"; slot: SlotCode; productId?: string; skipMetrics?: boolean }
   | { type: "INSPECT_PRODUCT"; productId: string }
   | { type: "INSPECT_SHARED_PRODUCT"; productId: string }
-  | { type: "VEND" }
+  | { type: "VEND"; productId?: string; slotCode?: SlotCode; skipMetrics?: boolean }
   | { type: "KEEP"; productId?: string }
   | { type: "OWN"; productId?: string }
   | { type: "REMOVE_HAUL"; productId: string }
@@ -104,13 +112,14 @@ function bumpShown(
 
 function vendTarget(
   state: MachineState,
+  slots: Record<SlotCode, string> = state.slots,
 ): { productId: string; slotCode?: SlotCode } | null {
   if (state.inspectionSource === "shared" && state.inspectProductId) {
     if (!getProduct(state.inspectProductId)) return null
     return { productId: state.inspectProductId }
   }
   if (state.selectedSlot) {
-    const productId = state.slots[state.selectedSlot]
+    const productId = slots[state.selectedSlot]
     if (!productId) return null
     return { productId, slotCode: state.selectedSlot }
   }
@@ -165,7 +174,7 @@ function reducer(state: MachineState, action: Action): MachineState {
     case "HYDRATE":
       return action.state
     case "SELECT_SLOT": {
-      const productId = state.slots[action.slot]
+      const productId = action.productId ?? state.slots[action.slot]
       return {
         ...state,
         selectedSlot: action.slot,
@@ -173,9 +182,10 @@ function reducer(state: MachineState, action: Action): MachineState {
         inspectionSource: "slot",
         inspectorOpen: true,
         notice: null,
-        metrics: productId
-          ? bump(state.metrics, productId, "timesSelected")
-          : state.metrics,
+        metrics:
+          action.skipMetrics || !productId
+            ? state.metrics
+            : bump(state.metrics, productId, "timesSelected"),
       }
     }
     case "INSPECT_PRODUCT": {
@@ -202,7 +212,9 @@ function reducer(state: MachineState, action: Action): MachineState {
       }
     }
     case "VEND": {
-      const target = vendTarget(state)
+      const target = action.productId
+        ? { productId: action.productId, slotCode: action.slotCode }
+        : vendTarget(state)
       if (!target) return state
       const already = state.haul.some((item) => item.productId === target.productId)
       const haul = already
@@ -220,7 +232,9 @@ function reducer(state: MachineState, action: Action): MachineState {
         haul,
         dispensingId: target.productId,
         haulOpen: false,
-        metrics: bump(state.metrics, target.productId, "timesVended"),
+        metrics: action.skipMetrics
+          ? state.metrics
+          : bump(state.metrics, target.productId, "timesVended"),
         notice: {
           kind: "vend",
           message: already ? "ALREADY IN YOUR HAUL" : "DISPENSED",
@@ -333,10 +347,12 @@ type MachineContextValue = MachineState & {
   selectedProduct: ReturnType<typeof getProduct>
   newCount: number
   stockedCount: number
+  editionPreviewLabel: string | null
+  faceEdition: Edition | null
   selectSlot: (slot: SlotCode) => void
   inspectProduct: (productId: string) => void
   inspectSharedProduct: (productId: string) => void
-  vend: () => void
+  vend: (productId?: string) => void
   keepStocked: (productId?: string) => void
   alreadyOwn: (productId?: string) => void
   shareItem: (productId?: string) => Promise<void>
@@ -357,6 +373,21 @@ const MachineContext = createContext<MachineContextValue | null>(null)
 export function MachineProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, undefined, createInitialState)
   const [ready, setReady] = useState(false)
+  const [overlaySlots, setOverlaySlots] = useState<Record<SlotCode, string> | null>(
+    getDevEditionPreviewSlots,
+  )
+  const previewEdition = getDevEditionPreview()
+  const faceEdition = getActiveEditionFace()
+  const previewing = overlaySlots !== null
+  const displaySlots = overlaySlots ?? state.slots
+  const overlayRef = useRef(overlaySlots)
+  overlayRef.current = overlaySlots
+
+  useEffect(() => {
+    const sync = () => setOverlaySlots(getDevEditionPreviewSlots())
+    window.addEventListener("popstate", sync)
+    return () => window.removeEventListener("popstate", sync)
+  }, [])
 
   useEffect(() => {
     const saved = readJson<ReturnType<typeof persistable> | null>("machine", null)
@@ -407,9 +438,14 @@ export function MachineProvider({ children }: { children: ReactNode }) {
 
   const selectSlot = useCallback(
     (slot: SlotCode) => {
-      const productId = state.slots[slot]
-      dispatch({ type: "SELECT_SLOT", slot })
-      if (productId) {
+      const productId = displaySlots[slot]
+      dispatch({
+        type: "SELECT_SLOT",
+        slot,
+        productId,
+        skipMetrics: previewing,
+      })
+      if (productId && !previewing) {
         track({
           name: "slot_selected",
           restockId: state.restockId,
@@ -418,13 +454,25 @@ export function MachineProvider({ children }: { children: ReactNode }) {
         })
       }
     },
-    [state.restockId, state.slots],
+    [displaySlots, previewing, state.restockId],
   )
 
-  const vend = useCallback(() => {
-    const target = vendTarget(state)
+  const vend = useCallback((productId?: string) => {
+    const slots = overlayRef.current ?? state.slots
+    const target = productId
+      ? {
+          productId,
+          slotCode: slotForProduct(slots, productId) ?? state.selectedSlot ?? undefined,
+        }
+      : vendTarget(state, slots)
     if (!target) return
-    dispatch({ type: "VEND" })
+    dispatch({
+      type: "VEND",
+      productId: target.productId,
+      slotCode: target.slotCode,
+      skipMetrics: overlayRef.current !== null,
+    })
+    if (overlayRef.current) return
     track({
       name: "product_vended",
       restockId: state.restockId,
@@ -533,13 +581,18 @@ export function MachineProvider({ children }: { children: ReactNode }) {
   }, [state.haul, state.restockId, state.sharedHaulIds])
 
   const restock = useCallback(() => {
+    if (overlaySlots) {
+      const { slots } = restockMachine(overlaySlots, state.seenIds)
+      setOverlaySlots(slots)
+      return
+    }
     const { slots, log } = restockMachine(state.slots, state.seenIds)
     dispatch({ type: "APPLY_RESTOCK", slots, log })
     track({
       name: "restock_triggered",
       restockId: log.id,
     })
-  }, [state.seenIds, state.slots])
+  }, [overlaySlots, state.seenIds, state.slots])
 
   const openIntro = useCallback(() => {
     dispatch({ type: "OPEN_INTRO" })
@@ -554,23 +607,33 @@ export function MachineProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "INSPECT_SHARED_PRODUCT", productId })
   }, [])
 
-  const selectedProduct = state.inspectProductId
-    ? getProduct(state.inspectProductId)
-    : state.selectedSlot
-      ? getProduct(state.slots[state.selectedSlot])
-      : undefined
+  const selectedProduct = overlaySlots && state.selectedSlot
+    ? getProduct(overlaySlots[state.selectedSlot])
+    : state.inspectProductId
+      ? getProduct(state.inspectProductId)
+      : state.selectedSlot
+        ? getProduct(state.slots[state.selectedSlot])
+        : undefined
 
-  const newCount = slotProductIds(state.slots).filter((id) =>
-    getProduct(id)?.badges?.includes("new"),
-  ).length
+  const newCount = faceEdition
+    ? editionNewCount(faceEdition)
+    : slotProductIds(displaySlots).filter((id) =>
+        getProduct(id)?.badges?.includes("new"),
+      ).length
+  const editionPreviewLabel = previewEdition
+    ? `DRAFT EDITION ${previewEdition.id}`
+    : null
 
   const value = useMemo<MachineContextValue>(
     () => ({
       ...state,
+      slots: displaySlots,
       ready,
       selectedProduct,
       newCount,
       stockedCount: 16,
+      editionPreviewLabel,
+      faceEdition,
       selectSlot,
       inspectProduct,
       inspectSharedProduct,
@@ -612,6 +675,9 @@ export function MachineProvider({ children }: { children: ReactNode }) {
     }),
     [
       alreadyOwn,
+      displaySlots,
+      editionPreviewLabel,
+      faceEdition,
       keepStocked,
       newCount,
       openIntro,

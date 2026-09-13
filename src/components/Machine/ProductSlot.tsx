@@ -1,3 +1,6 @@
+import { editionBadgeForSlot } from "../../data/editions"
+import { useMachine } from "../../state/MachineContext"
+import { EDITION_BADGE_LABEL } from "../../types/edition"
 import { ProductFigure } from "../ProductFigure"
 import { BADGE_LABEL, type Product, type SlotCode } from "../../types/product"
 
@@ -9,7 +12,15 @@ type ProductSlotProps = {
 }
 
 export function ProductSlot({ code, product, selected, onSelect }: ProductSlotProps) {
-  const badge = product.badges?.[0]
+  const { faceEdition } = useMachine()
+  const editionBadge = faceEdition ? editionBadgeForSlot(faceEdition, code) : undefined
+  const badgeLabel = faceEdition
+    ? editionBadge
+      ? EDITION_BADGE_LABEL[editionBadge]
+      : null
+    : product.badges?.[0]
+      ? BADGE_LABEL[product.badges[0]]
+      : null
   return (
     <button
       type="button"
@@ -21,7 +32,7 @@ export function ProductSlot({ code, product, selected, onSelect }: ProductSlotPr
     >
       <div className="slot__chrome">
         <span className="slot__code">{code}</span>
-        {badge ? <span className="slot__badge">{BADGE_LABEL[badge]}</span> : <span />}
+        {badgeLabel ? <span className="slot__badge">{badgeLabel}</span> : <span />}
       </div>
       <div className="slot__well">
         <ProductFigure product={product} visual="photo" />

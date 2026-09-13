@@ -11,9 +11,11 @@ import {
   useMediaQuery,
 } from "../../lib/media"
 import { productOutboundUrl } from "../../lib/productLinks"
+import { editionBadgeForSlot } from "../../data/editions"
 import { useMachine } from "../../state/MachineContext"
 import { NEXT_RESTOCK_LABEL } from "../../types/machine"
 import { slotForProduct } from "../../lib/slots"
+import { EDITION_BADGE_LABEL } from "../../types/edition"
 import { BADGE_LABEL, type Product, type ProductBadge, type SlotCode } from "../../types/product"
 
 function statusLine(badge?: ProductBadge): string | null {
@@ -109,7 +111,12 @@ export function InspectorBody({
             VIEW HAUL
           </button>
         ) : (
-          <button type="button" className="vend" onClick={vend} disabled={!canVend}>
+          <button
+            type="button"
+            className="vend"
+            onClick={() => vend(selectedProduct.id)}
+            disabled={!canVend}
+          >
             VEND →
           </button>
         )}
@@ -154,8 +161,15 @@ const SHEET_RESTING_DVH = 55
 const SHEET_EXPANDED_DVH = 80
 
 export function InspectionPanel() {
-  const { selectedSlot, selectedProduct, inspectorOpen, setInspectorOpen, slots, inspectionSource } =
-    useMachine()
+  const {
+    selectedSlot,
+    selectedProduct,
+    inspectorOpen,
+    setInspectorOpen,
+    slots,
+    inspectionSource,
+    faceEdition,
+  } = useMachine()
   const isMobile = useMediaQuery(MOBILE_MACHINE_QUERY)
   const isTablet = useMediaQuery(TABLET_MACHINE_QUERY)
   const isCoarsePointer = useMediaQuery(COARSE_POINTER_QUERY)
@@ -163,8 +177,14 @@ export function InspectionPanel() {
   const inMachine = Boolean(
     selectedProduct && slotForProduct(slots, selectedProduct.id),
   )
+  const editionBadge =
+    faceEdition && selectedSlot ? editionBadgeForSlot(faceEdition, selectedSlot) : undefined
   const statusLabel = selectedProduct
-    ? productMachineStatus(selectedProduct, inMachine, inspectionSource === "shared")
+    ? faceEdition && inMachine
+      ? editionBadge
+        ? EDITION_BADGE_LABEL[editionBadge]
+        : null
+      : productMachineStatus(selectedProduct, inMachine, inspectionSource === "shared")
     : null
   const [expanded, setExpanded] = useState(() => {
     if (typeof window === "undefined") return true

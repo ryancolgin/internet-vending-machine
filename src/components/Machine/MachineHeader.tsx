@@ -2,7 +2,7 @@ import { MACHINE_NAME, MACHINE_NUMBER, MACHINE_STATUS_TAIL, MACHINE_TAGLINE } fr
 import { useMachine } from "../../state/MachineContext"
 
 export function MachineHeader() {
-  const { stockedCount, newCount, openIntro } = useMachine()
+  const { stockedCount, newCount, openIntro, editionPreviewLabel } = useMachine()
 
   return (
     <header className="machine-header">
@@ -32,6 +32,9 @@ export function MachineHeader() {
           <b>{newCount}</b> NEW
         </span>
         <span>{MACHINE_STATUS_TAIL}</span>
+        {editionPreviewLabel ? (
+          <span className="machine-header__preview">{editionPreviewLabel}</span>
+        ) : null}
       </p>
     </header>
   )
