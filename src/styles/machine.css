@@ -1239,9 +1239,28 @@ a.ghost {
 
 .haul-item__actions {
   display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 4px;
+}
+
+.haul-item__primary {
+  display: flex;
   flex-wrap: wrap;
   gap: 2px 4px;
-  margin-top: 4px;
+}
+
+.haul-item__utility {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2px 8px;
+  width: 100%;
+}
+
+.haul-item__utility .ghost:last-child {
+  margin-left: auto;
 }
 
 .haul-item__outbound {

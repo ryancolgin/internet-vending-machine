@@ -339,7 +339,7 @@ type MachineContextValue = MachineState & {
   vend: () => void
   keepStocked: (productId?: string) => void
   alreadyOwn: (productId?: string) => void
-  shareItem: () => Promise<void>
+  shareItem: (productId?: string) => Promise<void>
   shareHaul: () => Promise<void>
   removeFromHaul: (productId: string) => void
   restock: () => void
@@ -481,15 +481,22 @@ export function MachineProvider({ children }: { children: ReactNode }) {
     [state.haul, state.inspectProductId, state.reactions, state.restockId, state.selectedSlot, state.slots],
   )
 
-  const shareItem = useCallback(async () => {
-    const productId =
+  const shareItem = useCallback(async (productId?: string) => {
+    const resolvedId =
+      productId ??
       state.inspectProductId ??
       (state.selectedSlot ? state.slots[state.selectedSlot] : undefined)
-    const product = productId ? getProduct(productId) : undefined
+    const product = resolvedId ? getProduct(resolvedId) : undefined
     if (!product) return
     const url = productShareUrl(product.id)
     const result = await sharePayload(url)
     if (result === "failed") return
+    const haulItem = state.haul.find((item) => item.productId === product.id)
+    const slotCode =
+      haulItem?.slotCode ??
+      (state.selectedSlot && state.slots[state.selectedSlot] === product.id
+        ? state.selectedSlot
+        : undefined)
     dispatch({ type: "MARK_SHARED", productId: product.id })
     dispatch({
       type: "SET_NOTICE",
@@ -502,9 +509,9 @@ export function MachineProvider({ children }: { children: ReactNode }) {
       name: "share_item",
       restockId: state.restockId,
       productId: product.id,
-      slotCode: state.selectedSlot ?? undefined,
+      slotCode,
     })
-  }, [state.inspectProductId, state.restockId, state.selectedSlot, state.slots])
+  }, [state.haul, state.inspectProductId, state.restockId, state.selectedSlot, state.slots])
 
   const shareHaul = useCallback(async () => {
     const ids = state.sharedHaulIds ?? state.haul.map((item) => item.productId)

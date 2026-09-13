@@ -11,12 +11,20 @@ export function HaulDrawer() {
     haul,
     setHaulOpen,
     setShareOpen,
+    shareItem,
     removeFromHaul,
     keepStocked,
     alreadyOwn,
     reactions,
+    notice,
     restockId,
   } = useMachine()
+
+  const itemShareNotice =
+    notice?.kind === "share" &&
+    (notice.message === "LINK COPIED" || notice.message === "SHARED")
+      ? notice
+      : null
 
   if (!haulOpen) return null
 
@@ -55,36 +63,47 @@ export function HaulDrawer() {
                         : product.priceLabel}
                     </p>
                     <div className="haul-item__actions">
-                      <ProductOutboundLink
-                        product={product}
-                        from="haul"
-                        restockId={restockId}
-                        slotCode={item.slotCode}
-                        className="haul-item__outbound"
-                      />
-                      <button
-                        type="button"
-                        className={`ghost${notedKeep ? " ghost--on" : ""}`}
-                        aria-pressed={notedKeep}
-                        onClick={() => keepStocked(product.id)}
-                      >
-                        KEEP STOCKED
-                      </button>
-                      <button
-                        type="button"
-                        className={`ghost${notedOwn ? " ghost--on" : ""}`}
-                        aria-pressed={notedOwn}
-                        onClick={() => alreadyOwn(product.id)}
-                      >
-                        ALREADY OWN
-                      </button>
-                      <button
-                        type="button"
-                        className="ghost"
-                        onClick={() => removeFromHaul(product.id)}
-                      >
-                        REMOVE
-                      </button>
+                      <div className="haul-item__primary">
+                        <ProductOutboundLink
+                          product={product}
+                          from="haul"
+                          restockId={restockId}
+                          slotCode={item.slotCode}
+                          className="haul-item__outbound"
+                        />
+                        <button
+                          type="button"
+                          className={`ghost${notedKeep ? " ghost--on" : ""}`}
+                          aria-pressed={notedKeep}
+                          onClick={() => keepStocked(product.id)}
+                        >
+                          KEEP STOCKED
+                        </button>
+                        <button
+                          type="button"
+                          className={`ghost${notedOwn ? " ghost--on" : ""}`}
+                          aria-pressed={notedOwn}
+                          onClick={() => alreadyOwn(product.id)}
+                        >
+                          ALREADY OWN
+                        </button>
+                      </div>
+                      <div className="haul-item__utility">
+                        <button
+                          type="button"
+                          className="ghost"
+                          onClick={() => removeFromHaul(product.id)}
+                        >
+                          REMOVE
+                        </button>
+                        <button
+                          type="button"
+                          className="ghost"
+                          onClick={() => void shareItem(product.id)}
+                        >
+                          SHARE
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </li>
@@ -92,6 +111,7 @@ export function HaulDrawer() {
             })}
           </ul>
         )}
+        {itemShareNotice ? <p className="notice">{itemShareNotice.message}</p> : null}
         <div className="panel__actions">
           <button type="button" className="vend" onClick={() => setShareOpen(true)}>
             VIEW HAUL CARD
