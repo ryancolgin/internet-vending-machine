@@ -3,7 +3,7 @@ import { ProductFigure, type ProductVisual } from "../ProductFigure"
 import { ProductOutboundLink } from "../ProductOutboundLink"
 import { useMachine } from "../../state/MachineContext"
 
-const HAUL_VISUAL: ProductVisual = "illustration"
+const HAUL_VISUAL: ProductVisual = "photo"
 
 export function HaulDrawer() {
   const {
@@ -44,7 +44,9 @@ export function HaulDrawer() {
               const notedOwn = Boolean(reactions[product.id]?.own)
               return (
                 <li key={item.productId} className="haul-item">
-                  <ProductFigure product={product} visual={HAUL_VISUAL} />
+                  <div className="haul-item__thumb">
+                    <ProductFigure product={product} visual={HAUL_VISUAL} />
+                  </div>
                   <div>
                     <p className="haul-item__name">{product.name}</p>
                     <p className="haul-item__price">
@@ -58,7 +60,7 @@ export function HaulDrawer() {
                         from="haul"
                         restockId={restockId}
                         slotCode={item.slotCode}
-                        className="ghost haul-item__outbound"
+                        className="haul-item__outbound"
                       />
                       <button
                         type="button"

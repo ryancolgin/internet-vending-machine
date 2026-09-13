@@ -10,6 +10,7 @@ import {
   TABLET_MACHINE_QUERY,
   useMediaQuery,
 } from "../../lib/media"
+import { productOutboundUrl } from "../../lib/productLinks"
 import { useMachine } from "../../state/MachineContext"
 import { NEXT_RESTOCK_LABEL } from "../../types/machine"
 import { slotForProduct } from "../../lib/slots"
@@ -47,12 +48,26 @@ export function InspectorBody({
   compact = false,
   visual = "photo",
 }: InspectorBodyProps) {
-  const { vend, keepStocked, alreadyOwn, shareItem, reactions, notice, shareOpen, inspectionSource, restockId } =
-    useMachine()
+  const {
+    vend,
+    keepStocked,
+    alreadyOwn,
+    reactions,
+    notice,
+    shareOpen,
+    inspectionSource,
+    restockId,
+    haul,
+    setHaulOpen,
+  } = useMachine()
   const notedKeep = Boolean(reactions[selectedProduct.id]?.keep)
   const notedOwn = Boolean(reactions[selectedProduct.id]?.own)
   const sharedDeepLink = inspectionSource === "shared"
   const canVend = inMachine || sharedDeepLink
+  const dispensed = haul.some((item) => item.productId === selectedProduct.id)
+  const outboundSlot = inMachine && selectedSlot ? selectedSlot : undefined
+  const hasOutbound = Boolean(productOutboundUrl(selectedProduct))
+  const showMetaOutbound = hasOutbound && !dispensed
   const inspectorNotice =
     notice && !shareOpen && notice.kind !== "restock" ? notice : null
   const originLabel = selectedProduct.source || selectedProduct.brand
@@ -65,24 +80,45 @@ export function InspectorBody({
         <h2 className="inspection__name">{selectedProduct.name.toUpperCase()}</h2>
         <p className="inspection__price">{selectedProduct.priceLabel}</p>
         <p className="inspection__copy">{selectedProduct.machineCopy}</p>
-        {originLabel || selectedProduct.sourceUrl ? (
+        {originLabel || showMetaOutbound ? (
           <p className="inspection__meta">
             {originLabel ? <span>{originLabel.toUpperCase()}</span> : null}
-            <ProductOutboundLink
-              product={selectedProduct}
-              from="inspector"
-              restockId={restockId}
-              slotCode={inMachine && selectedSlot ? selectedSlot : undefined}
-              className="inspection__outbound"
-            />
+            {showMetaOutbound ? (
+              <ProductOutboundLink
+                product={selectedProduct}
+                from="inspector"
+                restockId={restockId}
+                slotCode={outboundSlot}
+                className="inspection__outbound"
+              />
+            ) : null}
           </p>
         ) : null}
       </div>
       <div className={`inspection__actions${compact ? " inspection__actions--compact" : ""}`}>
-        <button type="button" className="vend" onClick={vend} disabled={!canVend}>
-          VEND →
-        </button>
+        {dispensed && hasOutbound ? (
+          <ProductOutboundLink
+            product={selectedProduct}
+            from="inspector"
+            restockId={restockId}
+            slotCode={outboundSlot}
+            className="vend"
+          />
+        ) : dispensed ? (
+          <button type="button" className="vend" onClick={() => setHaulOpen(true)}>
+            VIEW HAUL
+          </button>
+        ) : (
+          <button type="button" className="vend" onClick={vend} disabled={!canVend}>
+            VEND →
+          </button>
+        )}
         <div className="inspection__secondary">
+          {dispensed && hasOutbound ? (
+            <button type="button" className="ghost" onClick={() => setHaulOpen(true)}>
+              VIEW HAUL
+            </button>
+          ) : null}
           <button
             type="button"
             className={`ghost${notedKeep ? " ghost--on" : ""}`}
@@ -98,9 +134,6 @@ export function InspectorBody({
             onClick={() => alreadyOwn(selectedProduct.id)}
           >
             ALREADY OWN
-          </button>
-          <button type="button" className="ghost" onClick={() => void shareItem()}>
-            SHARE
           </button>
         </div>
         {inspectorNotice ? <span className="notice">{inspectorNotice.message}</span> : null}

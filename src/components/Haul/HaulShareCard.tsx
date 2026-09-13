@@ -4,7 +4,7 @@ import { ProductFigure, type ProductVisual } from "../ProductFigure"
 import { useMachine } from "../../state/MachineContext"
 import { MACHINE_NAME, MACHINE_NUMBER } from "../../types/machine"
 
-const HAUL_CARD_VISUAL: ProductVisual = "illustration"
+const HAUL_CARD_VISUAL: ProductVisual = "photo"
 const HAUL_CARD_CELLS = 16
 
 function haulCardFoot(count: number): string {
@@ -12,7 +12,11 @@ function haulCardFoot(count: number): string {
   return `${count} / 16 THINGS FROM THE MACHINE`
 }
 
-export function HaulShareCard() {
+type HaulShareCardProps = {
+  visual?: ProductVisual
+}
+
+export function HaulShareCard({ visual = HAUL_CARD_VISUAL }: HaulShareCardProps) {
   const { shareOpen, haul, sharedHaulIds, setShareOpen, shareHaul, notice } = useMachine()
   if (!shareOpen) return null
 
@@ -45,7 +49,7 @@ export function HaulShareCard() {
             {cells.map((product, index) =>
               product ? (
                 <div key={product.id} className="share-card__cell">
-                  <ProductFigure product={product} visual={HAUL_CARD_VISUAL} />
+                  <ProductFigure product={product} visual={visual} />
                 </div>
               ) : (
                 <div

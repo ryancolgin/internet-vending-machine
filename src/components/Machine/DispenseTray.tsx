@@ -14,7 +14,7 @@ export function DispenseTray() {
         <span className="tray__label">DISPENSE</span>
         {product ? (
           <div className="tray__item">
-            <ProductFigure product={product} visual="illustration" />
+            <ProductFigure product={product} visual="photo" />
           </div>
         ) : null}
       </div>

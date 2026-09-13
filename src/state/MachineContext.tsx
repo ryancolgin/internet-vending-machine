@@ -223,7 +223,7 @@ function reducer(state: MachineState, action: Action): MachineState {
         metrics: bump(state.metrics, target.productId, "timesVended"),
         notice: {
           kind: "vend",
-          message: already ? "ALREADY IN YOUR HAUL" : "VENDED",
+          message: already ? "ALREADY IN YOUR HAUL" : "DISPENSED",
         },
       }
     }
