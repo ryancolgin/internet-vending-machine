@@ -869,6 +869,11 @@ a.ghost {
   padding: 0;
 }
 
+.inspector__controls .restock-row--haul-only,
+.machine__dock .restock-row--haul-only {
+  grid-template-columns: 1fr;
+}
+
 .machine__dock {
   padding: 0 2px;
   display: flex;

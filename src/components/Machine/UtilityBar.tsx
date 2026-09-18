@@ -1,5 +1,6 @@
+import { showRestockLog } from "../../lib/editionPreview"
 import { useMachine } from "../../state/MachineContext"
-import type { ModalId } from "../../types/machine"
+import { machineServicePlate, type ModalId } from "../../types/machine"
 
 const actions: Array<{ id: ModalId; label: string }> = [
   { id: "suggest", label: "SUGGEST SOMETHING" },
@@ -10,11 +11,14 @@ const actions: Array<{ id: ModalId; label: string }> = [
 
 export function UtilityBar() {
   const { setModal } = useMachine()
+  const visibleActions = showRestockLog()
+    ? actions
+    : actions.filter((action) => action.id !== "log")
 
   return (
     <div className="utility">
       <div className="utility__actions">
-        {actions.map((action) => (
+        {visibleActions.map((action) => (
           <button
             key={action.id}
             id={action.id === "follow" ? "utility-follow" : undefined}
@@ -25,7 +29,7 @@ export function UtilityBar() {
           </button>
         ))}
       </div>
-      <p className="service-plate">IVM-001 · TEST UNIT · NO PURCHASE</p>
+      <p className="service-plate">{machineServicePlate()}</p>
     </div>
   )
 }

@@ -1,26 +1,14 @@
 import type { Edition, EditionSlotBadge } from "../types/edition"
 import { SLOT_CODES, type SlotCode } from "../types/product"
 import { makeEmptySlots } from "../lib/slots"
+import { isEditionLive } from "../types/machine"
 
 /**
- * Edition catalog. Draft only until Friday.
+ * Edition catalog.
  *
- * The public/test machine still reads INITIAL_SLOT_PRODUCT_IDS, localStorage
- * slots, and restockMachine(). A DEV-only `?edition=001` overlay can render
- * this draft without persisting it or changing production behavior.
- *
- * Friday activation (manual, do not automate yet):
- * 1. Set EDITION_001.status to "current".
- * 2. Make Edition 001 the public slot source: seed MachineContext from
- *    editionSlotRecord(getCurrentEdition()) instead of
- *    INITIAL_SLOT_PRODUCT_IDS, and stop hydrating public slots from
- *    test localStorage restocks.
- * 3. Hide RESTOCK MACHINE on the public machine (Machine.tsx +
- *    InspectionPanel RestockControl). Keep it in development / sandbox.
- * 4. In src/types/machine.ts, set EDITION_PRELAUNCH = false so the header
- *    tail changes from `EDITION 001 · LAUNCHES FRI 09.18` to
- *    `EDITION 001 · FRI 09.18`.
- * 5. Do not add edition navigation or a previous-editions UI in that pass.
+ * Public face is `getCurrentEdition()` when `EDITION_PRELAUNCH` is false.
+ * DEV `?edition=` overlays drafts only; the live current edition is not
+ * preview-overlaid. Future PREVIOUS EDITIONS can read `getPublishedEditions()`.
  */
 
 export const EDITION_001: Edition = {
@@ -28,7 +16,7 @@ export const EDITION_001: Edition = {
   number: 1,
   stockedAt: "2026-09-18",
   launchAt: "2026-09-18",
-  status: "draft",
+  status: "current",
   slots: [
     { slot: "A1", productId: "singer-mini" },
     { slot: "A2", productId: "field-notes", badge: "house-favorite" },
@@ -62,13 +50,22 @@ export function getDraftEdition(): Edition | undefined {
 }
 
 export function getCurrentEdition(): Edition | undefined {
-  return EDITIONS.find((edition) => edition.status === "current")
+  const marked = EDITIONS.find((edition) => edition.status === "current")
+  if (marked) return marked
+  if (isEditionLive()) return EDITION_001
+  return undefined
 }
 
+/** Current + previous faces. Ready for a future public PREVIOUS EDITIONS list. */
 export function getPublishedEditions(): Edition[] {
-  return EDITIONS.filter(
+  const published = EDITIONS.filter(
     (edition) => edition.status === "current" || edition.status === "previous",
-  ).sort((a, b) => b.number - a.number)
+  )
+  const current = getCurrentEdition()
+  if (current && !published.some((edition) => edition.id === current.id)) {
+    published.push(current)
+  }
+  return published.sort((a, b) => b.number - a.number)
 }
 
 export function editionSlotRecord(edition: Edition): Record<SlotCode, string> {
