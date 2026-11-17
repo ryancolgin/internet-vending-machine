@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type PointerEvent } from "react"
 import { type ProductVisual } from "../ProductFigure"
 import { InspectionGallery } from "./InspectionGallery"
-import { ProductOutboundLink } from "../ProductOutboundLink"
+import { AffiliateNote, ProductOutboundLink } from "../ProductOutboundLink"
 import { DispenseTray } from "./DispenseTray"
 import { RestockControl } from "./RestockControl"
 import {
@@ -90,28 +90,34 @@ export function InspectorBody({
           <p className="inspection__meta">
             {originLabel ? <span>{originLabel.toUpperCase()}</span> : null}
             {showMetaOutbound ? (
-              <ProductOutboundLink
-                product={selectedProduct}
-                from="inspector"
-                restockId={restockId}
-                slotCode={outboundSlot}
-                editionId={linkEdition}
-                className="inspection__outbound"
-              />
+              <>
+                <ProductOutboundLink
+                  product={selectedProduct}
+                  from="inspector"
+                  restockId={restockId}
+                  slotCode={outboundSlot}
+                  editionId={linkEdition}
+                  className="inspection__outbound"
+                />
+                <AffiliateNote product={selectedProduct} />
+              </>
             ) : null}
           </p>
         ) : null}
       </div>
       <div className={`inspection__actions${compact ? " inspection__actions--compact" : ""}`}>
         {dispensed && hasOutbound ? (
-          <ProductOutboundLink
-            product={selectedProduct}
-            from="inspector"
-            restockId={restockId}
-            slotCode={outboundSlot}
-            editionId={linkEdition}
-            className="vend"
-          />
+          <>
+            <ProductOutboundLink
+              product={selectedProduct}
+              from="inspector"
+              restockId={restockId}
+              slotCode={outboundSlot}
+              editionId={linkEdition}
+              className="vend"
+            />
+            <AffiliateNote product={selectedProduct} />
+          </>
         ) : dispensed ? (
           <button type="button" className="vend" onClick={() => setHaulOpen(true)}>
             VIEW HAUL

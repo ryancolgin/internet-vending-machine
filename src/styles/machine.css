@@ -1189,6 +1189,26 @@ a.ghost {
   width: min(380px, 100%);
 }
 
+.panel p.intro__affiliate {
+  margin-top: 14px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.45;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+}
+
+.affiliate-note {
+  display: block;
+  flex-basis: 100%;
+  margin: 2px 0 0;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  line-height: 1.45;
+  letter-spacing: 0.03em;
+  color: var(--ink-faint);
+}
+
 .panel p.intro__credit {
   margin-top: 16px;
   font-family: var(--font-mono);

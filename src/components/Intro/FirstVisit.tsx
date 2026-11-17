@@ -1,3 +1,4 @@
+import { AFFILIATE_DISCLOSURE } from "../../lib/productLinks"
 import { useMachine } from "../../state/MachineContext"
 import { isEditionLive } from "../../types/machine"
 
@@ -187,6 +188,7 @@ export function FirstVisit() {
         ) : (
           <PrelaunchIntro dismissIntro={dismissIntro} setModal={setModal} />
         )}
+        <p className="intro__affiliate">{AFFILIATE_DISCLOSURE}</p>
         <p className="intro__credit">
           Built by Ryan Colgin ·{" "}
           <a

@@ -1,6 +1,19 @@
 import { track } from "../lib/analytics"
-import { productOutboundUrl } from "../lib/productLinks"
+import {
+  AFFILIATE_DISCLOSURE,
+  isAffiliateDestination,
+  productOutboundUrl,
+} from "../lib/productLinks"
 import type { Product, SlotCode } from "../types/product"
+
+export function AffiliateNote({
+  product,
+}: {
+  product: Pick<Product, "sourceUrl">
+}) {
+  if (!isAffiliateDestination(product)) return null
+  return <span className="affiliate-note">{AFFILIATE_DISCLOSURE}</span>
+}
 
 type ProductOutboundLinkProps = {
   product: Product

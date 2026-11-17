@@ -1,6 +1,6 @@
 import { getProduct } from "../../data/products"
 import { ProductFigure, type ProductVisual } from "../ProductFigure"
-import { ProductOutboundLink } from "../ProductOutboundLink"
+import { AffiliateNote, ProductOutboundLink } from "../ProductOutboundLink"
 import { displayPriceLabel } from "../../lib/promo"
 import { useMachine } from "../../state/MachineContext"
 
@@ -77,6 +77,7 @@ export function HaulDrawer() {
                           editionId={item.editionId}
                           className="haul-item__outbound"
                         />
+                        <AffiliateNote product={product} />
                         <button
                           type="button"
                           className={`ghost${notedKeep ? " ghost--on" : ""}`}
