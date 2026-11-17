@@ -1209,6 +1209,10 @@ a.ghost {
   color: var(--ink-faint);
 }
 
+.inspection__body .affiliate-note {
+  margin: 4px 0 0;
+}
+
 .panel p.intro__credit {
   margin-top: 16px;
   font-family: var(--font-mono);

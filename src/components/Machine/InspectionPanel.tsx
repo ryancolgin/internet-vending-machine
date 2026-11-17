@@ -86,38 +86,33 @@ export function InspectorBody({
         <h2 className="inspection__name">{selectedProduct.name.toUpperCase()}</h2>
         <p className="inspection__price">{displayPriceLabel(selectedProduct)}</p>
         <p className="inspection__copy">{selectedProduct.machineCopy}</p>
+        <AffiliateNote product={selectedProduct} />
         {originLabel || showMetaOutbound ? (
           <p className="inspection__meta">
             {originLabel ? <span>{originLabel.toUpperCase()}</span> : null}
             {showMetaOutbound ? (
-              <>
-                <ProductOutboundLink
-                  product={selectedProduct}
-                  from="inspector"
-                  restockId={restockId}
-                  slotCode={outboundSlot}
-                  editionId={linkEdition}
-                  className="inspection__outbound"
-                />
-                <AffiliateNote product={selectedProduct} />
-              </>
+              <ProductOutboundLink
+                product={selectedProduct}
+                from="inspector"
+                restockId={restockId}
+                slotCode={outboundSlot}
+                editionId={linkEdition}
+                className="inspection__outbound"
+              />
             ) : null}
           </p>
         ) : null}
       </div>
       <div className={`inspection__actions${compact ? " inspection__actions--compact" : ""}`}>
         {dispensed && hasOutbound ? (
-          <>
-            <ProductOutboundLink
-              product={selectedProduct}
-              from="inspector"
-              restockId={restockId}
-              slotCode={outboundSlot}
-              editionId={linkEdition}
-              className="vend"
-            />
-            <AffiliateNote product={selectedProduct} />
-          </>
+          <ProductOutboundLink
+            product={selectedProduct}
+            from="inspector"
+            restockId={restockId}
+            slotCode={outboundSlot}
+            editionId={linkEdition}
+            className="vend"
+          />
         ) : dispensed ? (
           <button type="button" className="vend" onClick={() => setHaulOpen(true)}>
             VIEW HAUL
