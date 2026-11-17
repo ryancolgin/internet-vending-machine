@@ -2,6 +2,7 @@ import type { AnalyticsEvent, AnalyticsEventName } from "../types/analytics"
 import { isRemoteAnalyticsConfigured } from "./env"
 import { sendAnalyticsEvent } from "./analytics/remote"
 import { getClientId } from "./client"
+import { resolveEditionView } from "./editionPreview"
 import { getSessionId } from "./session"
 import { readJson, writeJson } from "./storage"
 
@@ -12,6 +13,7 @@ export type TrackInput = {
   slotCode?: string
   referrer?: string
   pagePath?: string
+  editionId?: string
 }
 
 type AnalyticsSink = (event: AnalyticsEvent) => void
@@ -58,6 +60,7 @@ export function track(input: TrackInput): AnalyticsEvent {
     slotCode: input.slotCode,
     referrer: input.referrer,
     pagePath: input.pagePath,
+    editionId: input.editionId,
   }
 
   const events = readJson<AnalyticsEvent[]>("events", [])
@@ -89,11 +92,13 @@ function trackMachineOpenedOnce(): void {
   visitOpened = true
 
   const saved = readJson<{ restockId?: string } | null>("machine", null)
+  const edition = resolveEditionView()
   track({
     name: "machine_opened",
     restockId: saved?.restockId,
     referrer: readReferrer(),
     pagePath: readPagePath(),
+    editionId: edition && edition.status !== "draft" ? edition.id : undefined,
   })
 }
 

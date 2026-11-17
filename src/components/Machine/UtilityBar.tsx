@@ -1,3 +1,4 @@
+import { editionServicePlate } from "../../data/editions"
 import { showRestockLog } from "../../lib/editionPreview"
 import { useMachine } from "../../state/MachineContext"
 import { machineServicePlate, type ModalId } from "../../types/machine"
@@ -10,7 +11,7 @@ const actions: Array<{ id: ModalId; label: string }> = [
 ]
 
 export function UtilityBar() {
-  const { setModal } = useMachine()
+  const { setModal, faceEdition } = useMachine()
   const visibleActions = showRestockLog()
     ? actions
     : actions.filter((action) => action.id !== "log")
@@ -29,7 +30,9 @@ export function UtilityBar() {
           </button>
         ))}
       </div>
-      <p className="service-plate">{machineServicePlate()}</p>
+      <p className="service-plate">
+        {faceEdition ? editionServicePlate(faceEdition) : machineServicePlate()}
+      </p>
     </div>
   )
 }

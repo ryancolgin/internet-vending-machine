@@ -55,6 +55,57 @@ function PrelaunchIntro({
   )
 }
 
+function Edition002Intro({
+  dismissIntro,
+  setModal,
+}: {
+  dismissIntro: () => void
+  setModal: ReturnType<typeof useMachine>["setModal"]
+}) {
+  return (
+    <>
+      <h2 id="intro-title">EDITION 002 IS STOCKED</h2>
+      <p>
+        The machine is stocked with 16 good little things. Field Notes, Pocket
+        Ref, Excalidraw, and Emotion Explorers are still in the window.
+      </p>
+      <p>
+        Hit <b>VEND</b> on anything you&apos;d take with you.
+      </p>
+      <p>
+        Build a Haul, share what you found, and{" "}
+        <button
+          type="button"
+          className="intro__inline"
+          onClick={() => {
+            dismissIntro()
+            setModal("follow")
+          }}
+        >
+          FOLLOW RESTOCKS
+        </button>{" "}
+        for the next edition.
+      </p>
+      <p>
+        <button
+          type="button"
+          className="intro__inline"
+          onClick={() => {
+            dismissIntro()
+            setModal("suggest")
+          }}
+        >
+          SUGGEST SOMETHING
+        </button>{" "}
+        you think belongs in a future machine.
+      </p>
+      <p>
+        <b>Nothing will actually be purchased.</b>
+      </p>
+    </>
+  )
+}
+
 function LiveIntro({
   dismissIntro,
   setModal,
@@ -107,8 +158,9 @@ function LiveIntro({
 }
 
 export function FirstVisit() {
-  const { introDismissed, introOpen, dismissIntro, setModal } = useMachine()
+  const { introDismissed, introOpen, dismissIntro, setModal, faceEdition } = useMachine()
   if (introDismissed && !introOpen) return null
+  const showEdition002 = faceEdition?.id === "002"
 
   return (
     <div
@@ -120,7 +172,9 @@ export function FirstVisit() {
       }}
     >
       <div className="panel">
-        {isEditionLive() ? (
+        {showEdition002 ? (
+          <Edition002Intro dismissIntro={dismissIntro} setModal={setModal} />
+        ) : isEditionLive() ? (
           <LiveIntro dismissIntro={dismissIntro} setModal={setModal} />
         ) : (
           <PrelaunchIntro dismissIntro={dismissIntro} setModal={setModal} />

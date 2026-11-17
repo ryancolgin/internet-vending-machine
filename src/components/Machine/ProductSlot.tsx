@@ -1,4 +1,5 @@
 import { editionBadgeForSlot } from "../../data/editions"
+import { displayPriceLabel, promoBadgeLabel } from "../../lib/promo"
 import { useMachine } from "../../state/MachineContext"
 import { EDITION_BADGE_LABEL } from "../../types/edition"
 import { ProductFigure } from "../ProductFigure"
@@ -14,13 +15,15 @@ type ProductSlotProps = {
 export function ProductSlot({ code, product, selected, onSelect }: ProductSlotProps) {
   const { faceEdition } = useMachine()
   const editionBadge = faceEdition ? editionBadgeForSlot(faceEdition, code) : undefined
+  const saleBadge = promoBadgeLabel(product)
   const badgeLabel = faceEdition
     ? editionBadge
       ? EDITION_BADGE_LABEL[editionBadge]
-      : null
+      : saleBadge
     : product.badges?.[0]
       ? BADGE_LABEL[product.badges[0]]
-      : null
+      : saleBadge
+  const priceLabel = displayPriceLabel(product)
   return (
     <button
       type="button"
@@ -28,7 +31,7 @@ export function ProductSlot({ code, product, selected, onSelect }: ProductSlotPr
       data-slot={code}
       onClick={onSelect}
       aria-pressed={selected}
-      aria-label={`${code}, ${product.name}, ${product.priceLabel}`}
+      aria-label={`${code}, ${product.name}, ${priceLabel}`}
     >
       <div className="slot__chrome">
         <span className="slot__code">{code}</span>
@@ -40,7 +43,7 @@ export function ProductSlot({ code, product, selected, onSelect }: ProductSlotPr
       <div className="slot__meta">
         <div className="slot__copy">
           <div className="slot__name">{product.shortName ?? product.name}</div>
-          <div className="slot__price">{product.priceLabel}</div>
+          <div className="slot__price">{priceLabel}</div>
         </div>
         <span className="slot__selector" aria-hidden="true">
           <span className="slot__lamp" />

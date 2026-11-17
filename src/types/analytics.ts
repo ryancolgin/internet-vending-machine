@@ -1,5 +1,6 @@
 export type AnalyticsEventName =
   | "machine_opened"
+  | "edition_viewed"
   | "human_interaction"
   | "slot_selected"
   | "product_vended"
@@ -35,4 +36,6 @@ export type AnalyticsEvent = {
   slotCode?: string
   referrer?: string
   pagePath?: string
+  /** Edition on screen when the event was recorded. Omitted when unknown. */
+  editionId?: string
 }

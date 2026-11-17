@@ -36,6 +36,14 @@ export type ProductImage = {
 
 export type ProductImageEntry = string | ProductImage
 
+/** Temporary price. A missing or past `endsAt` never displays. */
+export type ProductPromo = {
+  priceLabel: string
+  /** ISO timestamp. The promo price and badge stop at this instant. */
+  endsAt: string
+  badge?: string
+}
+
 export type Product = {
   id: string
   name: string
@@ -49,6 +57,8 @@ export type Product = {
 
   price?: number
   priceLabel: string
+  /** Sale price. Ignored unless `endsAt` is still in the future. */
+  promo?: ProductPromo
 
   source?: string
   sourceUrl?: string

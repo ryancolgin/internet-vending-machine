@@ -7,6 +7,7 @@ type ProductOutboundLinkProps = {
   from: "inspector" | "haul"
   slotCode?: SlotCode
   restockId?: string
+  editionId?: string
   className?: string
 }
 
@@ -15,6 +16,7 @@ export function ProductOutboundLink({
   from,
   slotCode,
   restockId,
+  editionId,
   className,
 }: ProductOutboundLinkProps) {
   const href = productOutboundUrl(product)
@@ -32,6 +34,7 @@ export function ProductOutboundLink({
           restockId,
           productId: product.id,
           slotCode,
+          editionId,
         })
       }}
     >

@@ -11,6 +11,7 @@ import {
   useMediaQuery,
 } from "../../lib/media"
 import { productOutboundUrl } from "../../lib/productLinks"
+import { displayPriceLabel, promoBadgeLabel } from "../../lib/promo"
 import { editionBadgeForSlot } from "../../data/editions"
 import { useMachine } from "../../state/MachineContext"
 import { NEXT_RESTOCK_LABEL } from "../../types/machine"
@@ -61,12 +62,15 @@ export function InspectorBody({
     restockId,
     haul,
     setHaulOpen,
+    faceEdition,
   } = useMachine()
   const notedKeep = Boolean(reactions[selectedProduct.id]?.keep)
   const notedOwn = Boolean(reactions[selectedProduct.id]?.own)
   const sharedDeepLink = inspectionSource === "shared"
   const canVend = inMachine || sharedDeepLink
-  const dispensed = haul.some((item) => item.productId === selectedProduct.id)
+  const haulItem = haul.find((item) => item.productId === selectedProduct.id)
+  const dispensed = Boolean(haulItem)
+  const linkEdition = haulItem?.editionId ?? faceEdition?.id
   const outboundSlot = inMachine && selectedSlot ? selectedSlot : undefined
   const hasOutbound = Boolean(productOutboundUrl(selectedProduct))
   const showMetaOutbound = hasOutbound && !dispensed
@@ -80,7 +84,7 @@ export function InspectorBody({
       <div className="inspection__body">
         <p className="inspection__code">{inMachine && selectedSlot ? selectedSlot : "—"}</p>
         <h2 className="inspection__name">{selectedProduct.name.toUpperCase()}</h2>
-        <p className="inspection__price">{selectedProduct.priceLabel}</p>
+        <p className="inspection__price">{displayPriceLabel(selectedProduct)}</p>
         <p className="inspection__copy">{selectedProduct.machineCopy}</p>
         {originLabel || showMetaOutbound ? (
           <p className="inspection__meta">
@@ -91,6 +95,7 @@ export function InspectorBody({
                 from="inspector"
                 restockId={restockId}
                 slotCode={outboundSlot}
+                editionId={linkEdition}
                 className="inspection__outbound"
               />
             ) : null}
@@ -104,6 +109,7 @@ export function InspectorBody({
             from="inspector"
             restockId={restockId}
             slotCode={outboundSlot}
+            editionId={linkEdition}
             className="vend"
           />
         ) : dispensed ? (
@@ -183,7 +189,7 @@ export function InspectionPanel() {
     ? faceEdition && inMachine
       ? editionBadge
         ? EDITION_BADGE_LABEL[editionBadge]
-        : null
+        : promoBadgeLabel(selectedProduct)
       : productMachineStatus(selectedProduct, inMachine, inspectionSource === "shared")
     : null
   const [expanded, setExpanded] = useState(() => {

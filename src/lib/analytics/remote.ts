@@ -11,6 +11,7 @@ type RemoteRow = {
   client_id?: string | null
   referrer?: string | null
   page_path?: string | null
+  edition_id?: string | null
 }
 
 function toRow(event: AnalyticsEvent): RemoteRow {
@@ -25,6 +26,7 @@ function toRow(event: AnalyticsEvent): RemoteRow {
   }
   if (event.referrer) row.referrer = event.referrer
   if (event.pagePath) row.page_path = event.pagePath
+  if (event.editionId) row.edition_id = event.editionId
   return row
 }
 
@@ -39,10 +41,11 @@ function fromRow(row: RemoteRow): AnalyticsEvent {
     clientId: row.client_id ?? undefined,
     referrer: row.referrer ?? undefined,
     pagePath: row.page_path ?? undefined,
+    editionId: row.edition_id ?? undefined,
   }
 }
 
-function coreRow(row: RemoteRow): Omit<RemoteRow, "referrer" | "page_path"> {
+function coreRow(row: RemoteRow): Omit<RemoteRow, "referrer" | "page_path" | "edition_id"> {
   return {
     session_id: row.session_id,
     event_name: row.event_name,
@@ -104,10 +107,21 @@ async function postEvent(row: object): Promise<boolean> {
 export async function sendAnalyticsEvent(event: AnalyticsEvent): Promise<void> {
   const row = toRow(event)
   if (await postEvent(row)) return
+  if (row.edition_id) {
+    const withoutEdition = { ...row }
+    delete withoutEdition.edition_id
+    if (await postEvent(withoutEdition)) return
+  }
   await postEvent(coreRow(row))
 }
 
 export async function fetchRemoteEvents(): Promise<AnalyticsEvent[] | null> {
+  const withEdition = await rest<RemoteRow[]>(
+    "analytics_events?select=session_id,event_name,timestamp,product_id,slot_code,restock_id,client_id,referrer,page_path,edition_id&order=timestamp.asc",
+    { method: "GET" },
+  )
+  if (withEdition) return withEdition.map(fromRow)
+
   const withContext = await rest<RemoteRow[]>(
     "analytics_events?select=session_id,event_name,timestamp,product_id,slot_code,restock_id,client_id,referrer,page_path&order=timestamp.asc",
     { method: "GET" },

@@ -1,7 +1,7 @@
 import type { Edition, EditionSlotBadge } from "../types/edition"
 import { SLOT_CODES, type SlotCode } from "../types/product"
 import { makeEmptySlots } from "../lib/slots"
-import { isEditionLive } from "../types/machine"
+import { isEditionLive, MACHINE_NUMBER } from "../types/machine"
 
 /**
  * Edition catalog.
@@ -37,7 +37,80 @@ export const EDITION_001: Edition = {
   ],
 }
 
-export const EDITIONS: Edition[] = [EDITION_001]
+/**
+ * Draft face for local preview (`?edition=002`). Status stays draft.
+ * Edition 001 remains current until a later launch flips both statuses.
+ *
+ * penco-tape is the intended small wildcard and is not slotted. Its
+ * status is still "test" and its metrics are empty, so it is not eligible.
+ * rhodia-16 holds that seat, in B1.
+ *
+ * The Polaroid album is not slotted. WiiM Sound Lite is the variety
+ * alternate: audio, rather than a second Polaroid.
+ *
+ * XTEINK X4 Classic is not in inventory. Do not write its Nov 16–18
+ * promotional price into priceLabel. Sales belong on product.promo
+ * with an endsAt, and stop displaying when that instant passes.
+ *
+ * launchAt is the publication date. The header stamp is derived from it.
+ *
+ * Launch is not applied. When publishing, in this same edit:
+ * 1. Set EDITION_001.status to "previous".
+ * 2. Set EDITION_002.status to "current".
+ * 3. Set EDITION_002.launchAt and stockedAt to the real publication date.
+ * Header, plate, intro, and /?edition=001 follow those fields.
+ */
+export const EDITION_002: Edition = {
+  id: "002",
+  number: 2,
+  stockedAt: "2026-11-17",
+  launchAt: "2026-11-17",
+  status: "draft",
+  slots: [
+    { slot: "A1", productId: "field-notes", badge: "house-favorite" },
+    { slot: "A2", productId: "nitecore-tube", badge: "new" },
+    { slot: "A3", productId: "pocket-ref", badge: "house-favorite" },
+    { slot: "A4", productId: "nalgene-storage-jar-32oz", badge: "new" },
+    { slot: "B1", productId: "rhodia-16", badge: "new" },
+    { slot: "B2", productId: "polaroid-lab", badge: "new" },
+    { slot: "B3", productId: "kaweco-sport", badge: "new" },
+    { slot: "B4", productId: "excalidraw", badge: "returning" },
+    { slot: "C1", productId: "xteink-x4-pro", badge: "new" },
+    { slot: "C2", productId: "bludot-ends-trays", badge: "new" },
+    { slot: "C3", productId: "chef-iq-sense", badge: "new" },
+    { slot: "C4", productId: "stimeez-emotion-explorers", badge: "returning" },
+    { slot: "D1", productId: "satechi-onthego-7-in-1", badge: "new" },
+    { slot: "D2", productId: "wiim-sound-lite", badge: "new" },
+    { slot: "D3", productId: "level8-packing-cubes", badge: "new" },
+    { slot: "D4", productId: "flipper-zero", badge: "new" },
+  ],
+}
+
+export const EDITIONS: Edition[] = [EDITION_001, EDITION_002]
+
+const STAMP_WEEKDAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"] as const
+
+/** `2026-11-17` → `TUE 11.17`, using the UTC calendar date. */
+export function editionStamp(edition: Pick<Edition, "launchAt" | "stockedAt">): string {
+  const raw = edition.launchAt ?? edition.stockedAt
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(raw)
+  if (!match) return raw
+  const weekday =
+    STAMP_WEEKDAYS[
+      new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]))).getUTCDay()
+    ]
+  return `${weekday} ${match[2]}.${match[3]}`
+}
+
+/** `EDITION 002 · TUE 11.17` */
+export function editionStatusLine(edition: Edition): string {
+  return `EDITION ${edition.id} · ${editionStamp(edition)}`
+}
+
+/** `IVM-001 · EDITION 002 · NO PURCHASE` */
+export function editionServicePlate(edition: Edition): string {
+  return `IVM-${MACHINE_NUMBER} · EDITION ${edition.id} · NO PURCHASE`
+}
 
 export function getEditionById(id: string): Edition | undefined {
   return EDITIONS.find((edition) => edition.id === id)

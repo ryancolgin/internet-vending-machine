@@ -100,6 +100,7 @@ export function summarizeEvents(events: AnalyticsEvent[]): {
         }
         break
       case "machine_opened":
+      case "edition_viewed":
       case "human_interaction":
       case "help_opened":
       case "suggest_opened":

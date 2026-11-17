@@ -9,17 +9,21 @@ import {
   useState,
   type ReactNode,
 } from "react"
-import { editionNewCount } from "../data/editions"
+import { editionNewCount, editionSlotRecord, getCurrentEdition, getEditionById } from "../data/editions"
 import { INITIAL_SLOT_PRODUCT_IDS, getProduct } from "../data/products"
 import { track } from "../lib/analytics"
 import {
+  adjacentEditions,
+  EDITION_VIEW_EVENT,
+  editionPhaseLabel,
   getActiveEditionFace,
-  getDevEditionPreview,
-  getDevEditionPreviewSlots,
   getPublishedEditionSlots,
+  getViewedEditionSlots,
   isSandboxRestockEnabled,
   provenanceEditionId,
+  readEditionQuery,
   SANDBOX_SLOTS_KEY,
+  showEditionInUrl,
 } from "../lib/editionPreview"
 import type { Edition } from "../types/edition"
 import { createId, unique } from "../lib/ids"
@@ -67,6 +71,7 @@ export type MachineState = {
 type Action =
   | { type: "HYDRATE"; state: MachineState }
   | { type: "SELECT_SLOT"; slot: SlotCode; productId?: string; skipMetrics?: boolean }
+  | { type: "SYNC_FACE"; productId: string | null }
   | { type: "INSPECT_PRODUCT"; productId: string }
   | { type: "INSPECT_SHARED_PRODUCT"; productId: string }
   | { type: "VEND"; productId?: string; slotCode?: SlotCode; skipMetrics?: boolean; editionId?: string }
@@ -208,6 +213,14 @@ function reducer(state: MachineState, action: Action): MachineState {
   switch (action.type) {
     case "HYDRATE":
       return action.state
+    case "SYNC_FACE":
+      if (state.inspectionSource === "shared") return state
+      if (state.inspectProductId === action.productId) return state
+      return {
+        ...state,
+        inspectProductId: action.productId,
+        inspectionSource: action.productId ? "slot" : state.inspectionSource,
+      }
     case "SELECT_SLOT": {
       const productId = action.productId ?? state.slots[action.slot]
       return {
@@ -384,7 +397,11 @@ type MachineContextValue = MachineState & {
   newCount: number
   stockedCount: number
   editionPreviewLabel: string | null
+  editionPhase: "CURRENT" | "PREVIOUS" | "DRAFT" | null
+  previousEdition: Edition | null
+  nextEdition: Edition | null
   faceEdition: Edition | null
+  showEdition: (id: string) => void
   selectSlot: (slot: SlotCode) => void
   inspectProduct: (productId: string) => void
   inspectSharedProduct: (productId: string) => void
@@ -409,40 +426,58 @@ const MachineContext = createContext<MachineContextValue | null>(null)
 export function MachineProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, undefined, createInitialState)
   const [ready, setReady] = useState(false)
-  const [previewSlots, setPreviewSlots] = useState<Record<SlotCode, string> | null>(
-    getDevEditionPreviewSlots,
-  )
+  const [editionTick, setEditionTick] = useState(0)
   const [sandboxSlots, setSandboxSlots] = useState<Record<SlotCode, string> | null>(null)
-  const previewEdition = getDevEditionPreview()
-  const faceEdition = getActiveEditionFace()
+  const faceEdition = useMemo(() => getActiveEditionFace(), [editionTick])
+  const editionSlots = useMemo(
+    () => (faceEdition ? editionSlotRecord(faceEdition) : getViewedEditionSlots()),
+    [faceEdition],
+  )
   const publishedSlots = getPublishedEditionSlots()
-  const displaySlots = previewSlots ?? sandboxSlots ?? publishedSlots ?? state.slots
-  const faceOverride = previewSlots ?? sandboxSlots
-  const overlayRef = useRef(faceOverride)
-  overlayRef.current = faceOverride
+  const displaySlots = editionSlots ?? sandboxSlots ?? publishedSlots ?? state.slots
+  const draftFace = faceEdition?.status === "draft"
+  const faceRef = useRef(faceEdition)
+  faceRef.current = faceEdition
+  const draftRef = useRef(draftFace)
+  draftRef.current = draftFace
   const displayRef = useRef(displaySlots)
   displayRef.current = displaySlots
 
   useEffect(() => {
-    const sync = () => setPreviewSlots(getDevEditionPreviewSlots())
+    if (import.meta.env.DEV) return
+    const requested = readEditionQuery()
+    if (!requested) return
+    const edition = getEditionById(requested)
+    const current = getCurrentEdition()
+    if (edition?.status === "draft" && current) showEditionInUrl(current.id)
+  }, [editionTick])
+
+  useEffect(() => {
+    const sync = () => setEditionTick((tick) => tick + 1)
     window.addEventListener("popstate", sync)
-    return () => window.removeEventListener("popstate", sync)
+    window.addEventListener(EDITION_VIEW_EVENT, sync)
+    return () => {
+      window.removeEventListener("popstate", sync)
+      window.removeEventListener(EDITION_VIEW_EVENT, sync)
+    }
   }, [])
 
   useEffect(() => {
     const saved = readJson<Partial<Persistable> | null>("machine", null)
     const published = getPublishedEditionSlots()
+    const viewed = getViewedEditionSlots()
     const initial = createInitialState()
 
     if (published) {
       const selectedSlot = saved?.selectedSlot ?? initial.selectedSlot
+      const faceSlots = viewed ?? published
       dispatch({
         type: "HYDRATE",
         state: {
           ...initial,
           restockId: saved?.restockId ?? initial.restockId,
           selectedSlot,
-          haul: saved?.haul ?? initial.haul,
+          haul: Array.isArray(saved?.haul) ? saved.haul : initial.haul,
           seenIds: saved?.seenIds ?? initial.seenIds,
           introDismissed: saved?.introDismissed ?? initial.introDismissed,
           metrics: saved?.metrics ?? initial.metrics,
@@ -457,7 +492,7 @@ export function MachineProvider({ children }: { children: ReactNode }) {
           notice: null,
           inspectorOpen: false,
           introOpen: false,
-          inspectProductId: selectedSlot ? published[selectedSlot] || null : null,
+          inspectProductId: selectedSlot ? faceSlots[selectedSlot] || null : null,
           inspectionSource: selectedSlot ? "slot" : null,
         },
       })
@@ -499,6 +534,14 @@ export function MachineProvider({ children }: { children: ReactNode }) {
   }, [ready, state])
 
   useEffect(() => {
+    if (!ready || !editionSlots || !state.selectedSlot) return
+    if (state.inspectionSource === "shared") return
+    const productId = editionSlots[state.selectedSlot] || null
+    if (productId === state.inspectProductId) return
+    dispatch({ type: "SYNC_FACE", productId })
+  }, [ready, editionSlots, state.inspectionSource, state.inspectProductId, state.selectedSlot])
+
+  useEffect(() => {
     if (!state.dispensingId) return
     const timer = window.setTimeout(() => dispatch({ type: "CLEAR_DISPENSE" }), 2400)
     return () => window.clearTimeout(timer)
@@ -513,7 +556,7 @@ export function MachineProvider({ children }: { children: ReactNode }) {
   const selectSlot = useCallback(
     (slot: SlotCode) => {
       const productId = displaySlots[slot]
-      const skipMetrics = overlayRef.current !== null
+      const skipMetrics = draftRef.current
       dispatch({
         type: "SELECT_SLOT",
         slot,
@@ -526,6 +569,7 @@ export function MachineProvider({ children }: { children: ReactNode }) {
           restockId: state.restockId,
           productId,
           slotCode: slot,
+          editionId: faceRef.current?.id,
         })
       }
     },
@@ -541,19 +585,21 @@ export function MachineProvider({ children }: { children: ReactNode }) {
         }
       : vendTarget(state, slots)
     if (!target) return
-    const skipMetrics = overlayRef.current !== null
+    const skipMetrics = draftRef.current
+    const editionId = provenanceEditionId()
     dispatch({
       type: "VEND",
       productId: target.productId,
       slotCode: target.slotCode,
       skipMetrics,
-      editionId: provenanceEditionId(target.productId),
+      editionId,
     })
     if (skipMetrics) return
     track({
       name: "product_vended",
       restockId: state.restockId,
       productId: target.productId,
+      editionId,
       ...(target.slotCode ? { slotCode: target.slotCode } : {}),
     })
   }, [state])
@@ -582,11 +628,13 @@ export function MachineProvider({ children }: { children: ReactNode }) {
           ? state.selectedSlot
           : undefined)
       dispatch({ type: "KEEP", productId: id })
+      if (draftRef.current) return
       track({
         name: active ? "keep_stocked_removed" : "keep_stocked",
         restockId: state.restockId,
         productId: id,
         slotCode,
+        editionId: faceRef.current?.id,
       })
     },
     [productFromFace, state.haul, state.reactions, state.restockId, state.selectedSlot],
@@ -604,11 +652,13 @@ export function MachineProvider({ children }: { children: ReactNode }) {
           ? state.selectedSlot
           : undefined)
       dispatch({ type: "OWN", productId: id })
+      if (draftRef.current) return
       track({
         name: active ? "already_own_removed" : "already_own",
         restockId: state.restockId,
         productId: id,
         slotCode,
+        editionId: faceRef.current?.id,
       })
     },
     [productFromFace, state.haul, state.reactions, state.restockId, state.selectedSlot],
@@ -636,12 +686,15 @@ export function MachineProvider({ children }: { children: ReactNode }) {
         message: result === "copied" ? "LINK COPIED" : "SHARED",
       },
     })
-    track({
-      name: "share_item",
-      restockId: state.restockId,
-      productId: product.id,
-      slotCode,
-    })
+    if (!draftRef.current) {
+      track({
+        name: "share_item",
+        restockId: state.restockId,
+        productId: product.id,
+        slotCode,
+        editionId: haulItem?.editionId ?? faceRef.current?.id,
+      })
+    }
   }, [productFromFace, state.haul, state.restockId, state.selectedSlot])
 
   const shareHaul = useCallback(async () => {
@@ -657,18 +710,17 @@ export function MachineProvider({ children }: { children: ReactNode }) {
       },
     })
     recordHaulShareSnapshot(ids, state.restockId)
-    track({
-      name: "share_haul",
-      restockId: state.restockId,
-    })
+    if (!draftRef.current) {
+      track({
+        name: "share_haul",
+        restockId: state.restockId,
+        editionId: faceRef.current?.id,
+      })
+    }
   }, [state.haul, state.restockId, state.sharedHaulIds])
 
   const restock = useCallback(() => {
-    if (previewSlots) {
-      const { slots } = restockMachine(previewSlots, state.seenIds)
-      setPreviewSlots(slots)
-      return
-    }
+    if (editionSlots) return
     if (isSandboxRestockEnabled()) {
       const current = sandboxSlots ?? publishedSlots ?? state.slots
       const { slots } = restockMachine(current, state.seenIds)
@@ -683,7 +735,7 @@ export function MachineProvider({ children }: { children: ReactNode }) {
       name: "restock_triggered",
       restockId: log.id,
     })
-  }, [previewSlots, publishedSlots, sandboxSlots, state.seenIds, state.slots])
+  }, [editionSlots, publishedSlots, sandboxSlots, state.seenIds, state.slots])
 
   const openIntro = useCallback(() => {
     dispatch({ type: "OPEN_INTRO" })
@@ -709,9 +761,16 @@ export function MachineProvider({ children }: { children: ReactNode }) {
     : slotProductIds(displaySlots).filter((id) =>
         getProduct(id)?.badges?.includes("new"),
       ).length
-  const editionPreviewLabel = previewEdition
-    ? `DRAFT EDITION ${previewEdition.id}`
-    : null
+  const editionPreviewLabel = draftFace ? `DRAFT EDITION ${faceEdition.id}` : null
+  const neighbors = adjacentEditions(faceEdition)
+  const editionPhase = faceEdition ? editionPhaseLabel(faceEdition.status) : null
+  const showEdition = useCallback((id: string) => {
+    const next = getEditionById(id)
+    const currentId = faceRef.current?.id
+    showEditionInUrl(id)
+    if (!next || next.id === currentId || next.status === "draft") return
+    track({ name: "edition_viewed", editionId: next.id })
+  }, [])
 
   const value = useMemo<MachineContextValue>(
     () => ({
@@ -722,7 +781,11 @@ export function MachineProvider({ children }: { children: ReactNode }) {
       newCount,
       stockedCount: 16,
       editionPreviewLabel,
+      editionPhase,
+      previousEdition: neighbors.previous,
+      nextEdition: neighbors.next,
       faceEdition,
+      showEdition,
       selectSlot,
       inspectProduct,
       inspectSharedProduct,
@@ -737,11 +800,15 @@ export function MachineProvider({ children }: { children: ReactNode }) {
       dismissIntro: () => dispatch({ type: "DISMISS_INTRO" }),
       openIntro,
       setHaulOpen: (open: boolean) => {
-        if (open && !state.haulOpen) track({ name: "haul_opened" })
+        if (open && !state.haulOpen && !draftFace) {
+          track({ name: "haul_opened", editionId: faceEdition?.id })
+        }
         dispatch({ type: "SET_HAUL_OPEN", open })
       },
       setShareOpen: (open: boolean) => {
-        if (open && !state.shareOpen) track({ name: "haul_card_viewed" })
+        if (open && !state.shareOpen && !draftFace) {
+          track({ name: "haul_card_viewed", editionId: faceEdition?.id })
+        }
         dispatch({ type: "SET_SHARE_OPEN", open })
       },
       openSharedHaul: (productIds: string[]) => {
@@ -765,8 +832,13 @@ export function MachineProvider({ children }: { children: ReactNode }) {
     [
       alreadyOwn,
       displaySlots,
+      draftFace,
+      editionPhase,
       editionPreviewLabel,
       faceEdition,
+      neighbors.next,
+      neighbors.previous,
+      showEdition,
       keepStocked,
       newCount,
       openIntro,

@@ -1,6 +1,7 @@
 import { getProduct } from "../../data/products"
 import { ProductFigure, type ProductVisual } from "../ProductFigure"
 import { ProductOutboundLink } from "../ProductOutboundLink"
+import { displayPriceLabel } from "../../lib/promo"
 import { useMachine } from "../../state/MachineContext"
 
 const HAUL_VISUAL: ProductVisual = "photo"
@@ -58,9 +59,13 @@ export function HaulDrawer() {
                   <div>
                     <p className="haul-item__name">{product.name}</p>
                     <p className="haul-item__price">
-                      {item.slotCode
-                        ? `${item.slotCode} · ${product.priceLabel}`
-                        : product.priceLabel}
+                      {[
+                        item.editionId ? `EDITION ${item.editionId}` : null,
+                        item.slotCode,
+                        displayPriceLabel(product),
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
                     </p>
                     <div className="haul-item__actions">
                       <div className="haul-item__primary">
@@ -69,6 +74,7 @@ export function HaulDrawer() {
                           from="haul"
                           restockId={restockId}
                           slotCode={item.slotCode}
+                          editionId={item.editionId}
                           className="haul-item__outbound"
                         />
                         <button
