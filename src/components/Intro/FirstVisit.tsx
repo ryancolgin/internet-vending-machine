@@ -73,6 +73,10 @@ function Edition002Intro({
         Hit <b>VEND</b> on anything you&apos;d take with you.
       </p>
       <p>
+        Previous editions stay in the selector. Everything you vend joins the
+        same haul.
+      </p>
+      <p>
         Build a Haul, share what you found, and{" "}
         <button
           type="button"
@@ -122,6 +126,10 @@ function LiveIntro({
       </p>
       <p>
         Hit <b>VEND</b> on anything you&apos;d take with you.
+      </p>
+      <p>
+        Previous editions stay in the selector. Everything you vend joins the
+        same haul.
       </p>
       <p>
         Build a Haul, share what you found, and{" "}

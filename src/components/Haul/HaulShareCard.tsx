@@ -1,16 +1,16 @@
 import { getProduct } from "../../data/products"
+import {
+  HAUL_CARD_LIMIT,
+  haulCardLabel,
+  latestHaulCardIds,
+  sharedHaulCardIds,
+} from "../../lib/haulCard"
 import type { Product } from "../../types/product"
 import { ProductFigure, type ProductVisual } from "../ProductFigure"
 import { useMachine } from "../../state/MachineContext"
 import { MACHINE_NAME, MACHINE_NUMBER } from "../../types/machine"
 
 const HAUL_CARD_VISUAL: ProductVisual = "photo"
-const HAUL_CARD_CELLS = 16
-
-function haulCardFoot(count: number): string {
-  if (count >= HAUL_CARD_CELLS) return "16 / 16 · FULL MACHINE"
-  return `${count} / 16 THINGS FROM THE MACHINE`
-}
 
 type HaulShareCardProps = {
   visual?: ProductVisual
@@ -20,11 +20,15 @@ export function HaulShareCard({ visual = HAUL_CARD_VISUAL }: HaulShareCardProps)
   const { shareOpen, haul, sharedHaulIds, setShareOpen, shareHaul, notice } = useMachine()
   if (!shareOpen) return null
 
-  const ids = sharedHaulIds ?? haul.map((item) => item.productId)
+  const ownCard = sharedHaulIds == null
+  const ids = ownCard ? latestHaulCardIds(haul) : sharedHaulCardIds(sharedHaulIds)
   const products = ids
     .map((id) => getProduct(id))
     .filter((product): product is Product => Boolean(product))
-  const cells = Array.from({ length: HAUL_CARD_CELLS }, (_, index) => products[index])
+  const total = ownCard
+    ? haul.length
+    : Math.min(sharedHaulIds.length, HAUL_CARD_LIMIT)
+  const cells = Array.from({ length: HAUL_CARD_LIMIT }, (_, index) => products[index])
   const haulNotice =
     notice?.message === "HAUL LINK COPIED" || notice?.message === "HAUL SHARED"
       ? notice
@@ -61,7 +65,7 @@ export function HaulShareCard({ visual = HAUL_CARD_VISUAL }: HaulShareCardProps)
             )}
           </div>
           <p className="share-card__foot" style={{ marginTop: 16 }}>
-            {haulCardFoot(products.length)}
+            {haulCardLabel(products.length, total)}
           </p>
         </div>
         <div className="panel__actions">

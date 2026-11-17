@@ -743,9 +743,9 @@ export const products: Product[] = [
   },
   {
     id: "nitecore-tube",
-    name: "Nitecore Tube V2.0",
+    name: "Nitecore Tube V2.0 Keychain Flashlight",
     brand: "Nitecore",
-    shortName: "Nitecore Tube",
+    shortName: "Nitecore Light",
     type: "physical",
     category: "light",
     tags: ["flashlight", "usb", "keychain"],
@@ -819,8 +819,9 @@ export const products: Product[] = [
     sourceUrl: "https://excalidraw.com",
     illustration: "browser",
     slotImage: "/products/excalidraw-slot.webp",
-    slotSourceImage: "/products/excalidraw-slot.webp",
+    slotSourceImage: "/products/excalidraw-1.webp",
     productImages: [
+      { src: "/products/excalidraw-slot.webp", fit: "contain" },
       { src: "/products/excalidraw-1.webp", fit: "contain" },
       { src: "/products/excalidraw-2.webp", fit: "contain" },
       { src: "/products/excalidraw-3.webp", fit: "contain" },

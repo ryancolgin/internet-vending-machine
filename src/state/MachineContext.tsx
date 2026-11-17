@@ -29,6 +29,7 @@ import type { Edition } from "../types/edition"
 import { createId, unique } from "../lib/ids"
 import { restockMachine } from "../lib/restock"
 import { getSessionId } from "../lib/session"
+import { latestHaulCardIds, sharedHaulCardIds } from "../lib/haulCard"
 import {
   haulShareUrl,
   productShareUrl,
@@ -698,7 +699,9 @@ export function MachineProvider({ children }: { children: ReactNode }) {
   }, [productFromFace, state.haul, state.restockId, state.selectedSlot])
 
   const shareHaul = useCallback(async () => {
-    const ids = state.sharedHaulIds ?? state.haul.map((item) => item.productId)
+    const ids = state.sharedHaulIds
+      ? sharedHaulCardIds(state.sharedHaulIds)
+      : latestHaulCardIds(state.haul)
     const url = haulShareUrl(ids)
     const result = await sharePayload(url)
     if (result === "failed") return
