@@ -16,7 +16,7 @@ export const EDITION_001: Edition = {
   number: 1,
   stockedAt: "2026-09-18",
   launchAt: "2026-09-18",
-  status: "current",
+  status: "previous",
   slots: [
     { slot: "A1", productId: "singer-mini" },
     { slot: "A2", productId: "field-notes", badge: "house-favorite" },
@@ -38,8 +38,7 @@ export const EDITION_001: Edition = {
 }
 
 /**
- * Draft face for local preview (`?edition=002`). Status stays draft.
- * Edition 001 remains current until a later launch flips both statuses.
+ * Published November 17, 2026. Edition 001 is previous.
  *
  * penco-tape is the intended small wildcard and is not slotted. Its
  * status is still "test" and its metrics are empty, so it is not eligible.
@@ -53,19 +52,13 @@ export const EDITION_001: Edition = {
  * with an endsAt, and stop displaying when that instant passes.
  *
  * launchAt is the publication date. The header stamp is derived from it.
- *
- * Launch is not applied. When publishing, in this same edit:
- * 1. Set EDITION_001.status to "previous".
- * 2. Set EDITION_002.status to "current".
- * 3. Set EDITION_002.launchAt and stockedAt to the real publication date.
- * Header, plate, intro, and /?edition=001 follow those fields.
  */
 export const EDITION_002: Edition = {
   id: "002",
   number: 2,
   stockedAt: "2026-11-17",
   launchAt: "2026-11-17",
-  status: "draft",
+  status: "current",
   slots: [
     { slot: "A1", productId: "field-notes", badge: "house-favorite" },
     { slot: "A2", productId: "nitecore-tube", badge: "new" },
